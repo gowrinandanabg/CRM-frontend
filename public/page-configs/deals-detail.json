@@ -1,0 +1,122 @@
+{
+  "resource": "deals",
+  "api": "/api/v1/deals",
+  "titleField": "dealName",
+  "subtitleField": "account",
+  "statusField": "stage",
+  "headerActions": [
+    { "label": "Edit",       "action": "edit",         "style": "secondary" },
+    { "label": "Create Quote","action": "create-quote", "style": "primary",
+      "showWhen": ["Prospecting","Qualification","Proposal","Negotiation","Closed Won"] },
+    { "label": "Mark Won",   "action": "approve",      "style": "success",
+      "showWhen": ["Prospecting","Qualification","Proposal","Negotiation"] },
+    { "label": "Mark Lost",  "action": "reject",       "style": "danger",
+      "showWhen": ["Prospecting","Qualification","Proposal","Negotiation"] }
+  ],
+  "tabs": [
+    {
+      "key": "overview",
+      "label": "Overview",
+      "type": "overview",
+      "fieldGroups": [
+        {
+          "label": "Deal Information",
+          "fields": [
+            { "name": "dealName",          "label": "Deal Name" },
+            { "name": "account",           "label": "Account" },
+            { "name": "contact",           "label": "Primary Contact" },
+            { "name": "stage",             "label": "Stage" },
+            { "name": "amount",            "label": "Amount (₹)" },
+            { "name": "probability",       "label": "Probability (%)" },
+            { "name": "expectedCloseDate", "label": "Expected Close Date" },
+            { "name": "assignedTo",        "label": "Assigned To" },
+            { "name": "status",            "label": "Status" },
+            { "name": "createdAt",         "label": "Created" }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "activities",
+      "label": "Activities",
+      "type": "related-list",
+      "relatedApi": "/api/v1/deals/{id}/activities",
+      "columns": [
+        { "name": "type",       "label": "Type" },
+        { "name": "subject",    "label": "Subject" },
+        { "name": "assignedTo", "label": "Assigned To" },
+        { "name": "dueDate",    "label": "Date" },
+        { "name": "status",     "label": "Status" }
+      ],
+      "addLabel": "Log Activity",
+      "addApi": "/api/v1/activities",
+      "addDefaults": { "relatedType": "Deal", "status": "Pending" },
+      "addFields": [
+        { "name": "type",    "label": "Activity Type", "type": "select",
+          "options": [
+            {"label":"Call","value":"Call"},{"label":"Email","value":"Email"},
+            {"label":"Meeting","value":"Meeting"},{"label":"Demo","value":"Demo"},
+            {"label":"Note","value":"Note"}
+          ]
+        },
+        { "name": "subject",    "label": "Subject",     "type": "input" },
+        { "name": "assignedTo", "label": "Assigned To", "type": "input", "isDisabled": true },
+        { "name": "dueDate",    "label": "Date",        "type": "date" },
+        { "name": "status",     "label": "Status",      "type": "select",
+          "options": [{"label":"Pending","value":"Pending"},{"label":"Completed","value":"Completed"}]
+        }
+      ]
+    },
+    {
+      "key": "tasks",
+      "label": "Tasks",
+      "type": "related-list",
+      "relatedApi": "/api/v1/deals/{id}/tasks",
+      "columns": [
+        { "name": "title",    "label": "Task" },
+        { "name": "taskType", "label": "Type" },
+        { "name": "priority", "label": "Priority" },
+        { "name": "dueDate",  "label": "Due Date" },
+        { "name": "status",   "label": "Status" }
+      ],
+      "addLabel": "Add Task",
+      "addApi": "/api/v1/tasks",
+      "addDefaults": { "relatedType": "Deal", "status": "PENDING", "priority": "MEDIUM", "taskType": "FOLLOW_UP" },
+      "addFields": [
+        { "name": "title",      "label": "Task Title",  "type": "input" },
+        { "name": "taskType",   "label": "Type",        "type": "select",
+          "options": [
+            {"label":"Call","value":"CALL"},{"label":"Meeting","value":"MEETING"},
+            {"label":"Follow Up","value":"FOLLOW_UP"},{"label":"Demo","value":"DEMO"},
+            {"label":"Customer Visit","value":"CUSTOMER_VISIT"}
+          ]
+        },
+        { "name": "priority",   "label": "Priority",   "type": "select",
+          "options": [
+            {"label":"Low","value":"LOW"},{"label":"Medium","value":"MEDIUM"},
+            {"label":"High","value":"HIGH"},{"label":"Critical","value":"CRITICAL"}
+          ]
+        },
+        { "name": "dueDate",    "label": "Due Date",    "type": "date" },
+        { "name": "assignedTo", "label": "Assigned To", "type": "input", "isDisabled": true },
+        { "name": "notes",      "label": "Notes",       "type": "textarea" }
+      ]
+    },
+    {
+      "key": "quotes",
+      "label": "Quotes",
+      "type": "related-list",
+      "relatedApi": "/api/v1/deals/{id}/quotes",
+      "columns": [
+        { "name": "quoteNumber", "label": "Quote #" },
+        { "name": "amount",      "label": "Amount (₹)" },
+        { "name": "validUntil",  "label": "Valid Until" },
+        { "name": "createdBy",   "label": "Created By" },
+        { "name": "status",      "label": "Status" }
+      ],
+      "addLabel": "Create Quote",
+      "addApi": "/api/v1/deals/{id}/quotes",
+      "addMethod": "auto"
+    }
+  ]
+}

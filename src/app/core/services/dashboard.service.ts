@@ -21,7 +21,7 @@ export interface DashboardSummaryResponse {
 export class DashboardService {
   private http = inject(HttpClient);
 
-  private readonly apiUrl = 'http://localhost:8082/api/v1/reports/dashboard';
+  private readonly apiUrl = `http://${window.location.hostname}:8085/api/v1/reports/dashboard`;
 
   getDashboardSummary(): Observable<DashboardSummaryResponse> {
     return this.http.get<DashboardSummaryResponse>(this.apiUrl);

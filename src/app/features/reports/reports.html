@@ -1,0 +1,92 @@
+<div class="rpt-wrap">
+
+  <!-- Header -->
+  <div class="rpt-header">
+    <div>
+      <h1 class="rpt-title">Reports & Analytics</h1>
+      <p class="rpt-sub">Live performance overview from your CRM data.</p>
+    </div>
+    <a [routerLink]="['/deals']" class="rpt-btn">View Deals →</a>
+  </div>
+
+  @if (loading()) {
+  <div class="rpt-skeleton-grid">
+    @for (i of [1,2,3,4,5,6,7,8]; track i) {
+    <div class="rpt-skeleton"></div>
+    }
+  </div>
+  } @else {
+
+  <!-- KPI Cards -->
+  <div class="rpt-kpi-grid">
+    @for (k of kpis(); track k.title) {
+    <div class="rpt-kpi">
+      <div class="rpt-kpi__icon" [style.background]="k.color + '18'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" [attr.stroke]="k.color"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path [attr.d]="k.iconPath" />
+        </svg>
+      </div>
+      <div class="rpt-kpi__body">
+        <span class="rpt-kpi__label">{{ k.title }}</span>
+        <span class="rpt-kpi__value">{{ k.value }}</span>
+        <span class="rpt-kpi__sub">{{ k.sub }}</span>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- Stage Breakdown + Leaderboard -->
+  <div class="rpt-row">
+
+    <!-- Deal Stage Breakdown -->
+    <div class="rpt-card">
+      <h3 class="rpt-card__title">Deal Stage Breakdown</h3>
+      <div class="rpt-stages">
+        @for (s of stageBreakdown(); track s.label) {
+        <div class="rpt-stage-row">
+          <span class="rpt-stage-label">{{ s.label }}</span>
+          <div class="rpt-stage-bar-wrap">
+            <div class="rpt-stage-bar" [style.width.%]="s.pct" [style.background]="s.color"></div>
+          </div>
+          <span class="rpt-stage-count">{{ s.count }} ({{ s.pct }}%)</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Sales Leaderboard -->
+    <div class="rpt-card">
+      <h3 class="rpt-card__title">Sales Leaderboard</h3>
+      @if (leaderboard().length === 0) {
+      <p class="rpt-empty">No deal data yet.</p>
+      } @else {
+      <table class="rpt-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Rep</th>
+            <th>Deals</th>
+            <th>Won</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of leaderboard(); track row.name; let i = $index) {
+          <tr>
+            <td class="rpt-rank">{{ i + 1 }}</td>
+            <td class="rpt-name">{{ row.name }}</td>
+            <td>{{ row.deals }}</td>
+            <td class="rpt-won">{{ row.won }}</td>
+            <td class="rpt-val">{{ row.value }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+      }
+    </div>
+
+  </div>
+  }
+
+</div>

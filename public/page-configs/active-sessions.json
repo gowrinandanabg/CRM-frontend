@@ -1,0 +1,39 @@
+{
+  "name": "Active Sessions",
+  "title": "Active Sessions",
+  "store": "SessionStore",
+  "api": "/api/v1/sessions",
+  "workflowApiBase": "/api/v1/sessions",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      { "label": "All",        "value": "All",         "isDefault": true },
+      { "label": "Active",     "value": "ACTIVE"      },
+      { "label": "Expired",    "value": "EXPIRED"     },
+      { "label": "Terminated", "value": "TERMINATED"  }
+    ],
+    "statusMap": {
+      "ACTIVE":     ["ACTIVE"],
+      "EXPIRED":    ["EXPIRED"],
+      "TERMINATED": ["TERMINATED"]
+    }
+  },
+  "tableList": [
+    { "name": "username",        "label": "User",           "isHeaderView": true,  "width": "14rem" },
+    { "name": "role",            "label": "Role",           "isHeaderView": true,  "pipe": "status", "width": "12rem" },
+    { "name": "ipAddress",       "label": "IP Address",     "isHeaderView": true,  "width": "12rem" },
+    { "name": "browser",         "label": "Browser",        "isHeaderView": true,  "width": "10rem" },
+    { "name": "operatingSystem", "label": "OS",             "isHeaderView": true,  "width": "10rem" },
+    { "name": "device",          "label": "Device",         "isHeaderView": true,  "width": "10rem" },
+    { "name": "loginTime",       "label": "Login Time",     "isHeaderView": true,  "pipe": "date",   "width": "16rem" },
+    { "name": "lastActivity",    "label": "Last Activity",  "isHeaderView": true,  "pipe": "date",   "width": "16rem" },
+    { "name": "durationMinutes", "label": "Duration (min)", "isHeaderView": true,  "width": "10rem" },
+    { "name": "status",          "label": "Status",         "isHeaderView": true,  "pipe": "status", "width": "10rem" }
+  ],
+  "tableTool": { "add": false, "edit": false, "refresh": true, "export": true },
+  "contextMenuActions": [
+    { "label": "Terminate",     "action": "terminate",     "showWhen": ["ACTIVE"] },
+    { "label": "Terminate All", "action": "terminate-all"  }
+  ],
+  "steps": []
+}

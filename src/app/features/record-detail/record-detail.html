@@ -1,0 +1,249 @@
+<!-- Loading -->
+<div *ngIf="loading" class="rd-page-state">
+  <div class="rd-spinner"></div>
+  <span>Loading...</span>
+</div>
+
+<!-- Error -->
+<div *ngIf="pageError && !loading" class="rd-page-state rd-page-state--error">
+  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+  </svg>
+  <span>{{ pageError }}</span>
+  <button class="rd-back-link" (click)="goBack()">← Back to list</button>
+</div>
+
+<!-- Main -->
+<div *ngIf="!loading && !pageError && config && record" class="record-detail">
+
+  <!-- Header Card -->
+  <div class="rd-header">
+    <button class="rd-back-btn" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Back
+    </button>
+
+    <div class="rd-header-main">
+      <div class="rd-header-text">
+        <h1 class="rd-title">{{ recordTitle }}</h1>
+        <p class="rd-subtitle" *ngIf="recordSubtitle">{{ recordSubtitle }}</p>
+      </div>
+      <span class="rd-status-badge">
+        {{ recordStatus }}
+      </span>
+    </div>
+
+    <div class="rd-header-actions">
+      <button
+        *ngFor="let action of visibleActions"
+        class="rd-action-btn rd-action-btn--{{ action.style }}"
+        (click)="executeAction(action.action)">
+        {{ action.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs Card -->
+  <div class="rd-tabs-card">
+
+    <!-- Tab Navigation -->
+    <nav class="rd-tab-nav">
+      <button
+        *ngFor="let tab of config.tabs"
+        class="rd-tab-btn"
+        [class.rd-tab-btn--active]="activeTab() === tab.key"
+        (click)="selectTab(tab)">
+        {{ tab.label }}
+        <span *ngIf="tab.type === 'related-list' && tabCount(tab.key) > 0" class="rd-tab-count">
+          {{ tabCount(tab.key) }}
+        </span>
+      </button>
+    </nav>
+
+    <!-- Tab Content -->
+    <div class="rd-tab-body">
+
+      <!-- ── OVERVIEW ─────────────────────────────────────────────────────── -->
+      <ng-container *ngIf="currentTab?.type === 'overview'">
+        <div *ngFor="let group of currentTab?.fieldGroups" class="rd-field-group">
+          <h3 class="rd-group-label">{{ group.label }}</h3>
+          <div class="rd-fields-grid">
+            <div *ngFor="let field of group.fields" class="rd-field">
+              <span class="rd-field-label">{{ field.label }}</span>
+              <span class="rd-field-value">{{ fieldValue(field) }}</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ── RELATED LIST ────────────────────────────────────────────────── -->
+      <ng-container *ngIf="currentTab?.type === 'related-list'">
+        <div class="rd-related-header">
+          <span class="rd-related-count">
+            {{ tabCount(activeTab()) }} record{{ tabCount(activeTab()) !== 1 ? 's' : '' }}
+          </span>
+          <button
+            *ngIf="currentTab?.addLabel"
+            class="rd-add-btn"
+            (click)="openAddPanel(currentTab!)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            {{ currentTab?.addLabel }}
+          </button>
+        </div>
+
+        <!-- Tab loading -->
+        <div *ngIf="isTabLoading(activeTab())" class="rd-tab-loading">
+          <div class="rd-spinner rd-spinner--sm"></div>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="!isTabLoading(activeTab()) && tabRows(activeTab()).length === 0" class="rd-empty">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          <span>No {{ currentTab?.label?.toLowerCase() }} records yet.</span>
+          <button *ngIf="currentTab?.addLabel" class="rd-add-btn rd-add-btn--empty" (click)="openAddPanel(currentTab!)">
+            + {{ currentTab?.addLabel }}
+          </button>
+        </div>
+
+        <!-- Table -->
+        <div *ngIf="!isTabLoading(activeTab()) && tabRows(activeTab()).length > 0" class="rd-table-wrap">
+          <table class="rd-table">
+            <thead>
+              <tr>
+                <th *ngFor="let col of currentTab?.columns">{{ col.label }}</th>
+                <th class="rd-th-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of tabRows(activeTab())"
+                  [class.rd-row-clickable]="activeTab() === 'quotes' || activeTab() === 'invoices'">
+                <td *ngFor="let col of currentTab?.columns">
+                  {{ cellValue(row, col) }}
+                </td>
+                <td class="rd-td-actions">
+
+                  <!-- Activities -->
+                  <ng-container *ngIf="activeTab() === 'activities'">
+                    <button *ngIf="row['status'] !== 'Completed'"
+                      class="rd-row-btn"
+                      (click)="rowAction('complete-activity', row, 'activities')">
+                      Complete
+                    </button>
+                    <span *ngIf="row['status'] === 'Completed'" class="rd-done-label">Done</span>
+                  </ng-container>
+
+                  <!-- Tasks -->
+                  <ng-container *ngIf="activeTab() === 'tasks'">
+                    <button *ngIf="row['status'] !== 'COMPLETED'"
+                      class="rd-row-btn"
+                      (click)="rowAction('complete-task', row, 'tasks')">
+                      Complete
+                    </button>
+                    <span *ngIf="row['status'] === 'COMPLETED'" class="rd-done-label">Done</span>
+                  </ng-container>
+
+                  <!-- Quotes -->
+                  <ng-container *ngIf="activeTab() === 'quotes'">
+                    <button *ngIf="row['status'] === 'Draft'"
+                      class="rd-row-btn"
+                      (click)="rowAction('send-quote', row, 'quotes')">
+                      Send
+                    </button>
+                    <button *ngIf="row['status'] === 'Sent'"
+                      class="rd-row-btn rd-row-btn--success"
+                      (click)="rowAction('accept-quote', row, 'quotes')">
+                      Accept
+                    </button>
+                    <button *ngIf="row['status'] === 'Accepted'"
+                      class="rd-row-btn rd-row-btn--primary"
+                      (click)="rowAction('generate-invoice', row, 'quotes')">
+                      Generate Invoice
+                    </button>
+                    <span *ngIf="row['status'] === 'Rejected'" class="rd-done-label rd-done-label--rejected">Rejected</span>
+                  </ng-container>
+
+                  <!-- Deals (in Contact/Account detail) -->
+                  <ng-container *ngIf="activeTab() === 'deals'">
+                    <span class="rd-stage-badge">{{ row['stage'] }}</span>
+                  </ng-container>
+
+                  <!-- Invoices -->
+                  <ng-container *ngIf="activeTab() === 'invoices'">
+                    <span class="rd-status-chip">{{ row['status'] }}</span>
+                  </ng-container>
+
+                  <!-- Contacts (in Account detail) -->
+                  <ng-container *ngIf="activeTab() === 'contacts'">
+                    <span class="rd-stage-badge">{{ row['status'] }}</span>
+                  </ng-container>
+
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Add Panel ──────────────────────────────────────────────────────────── -->
+<ng-container *ngIf="addPanelOpen">
+  <div class="rd-overlay" (click)="closeAddPanel()"></div>
+  <aside class="rd-add-panel">
+    <div class="rd-add-panel-head">
+      <span>{{ addPanelTab?.addLabel }}</span>
+      <button class="rd-panel-close" (click)="closeAddPanel()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="rd-add-panel-body">
+      <ng-container *ngIf="addPanelTab?.addMethod !== 'auto'">
+        <div *ngFor="let field of addPanelTab?.addFields" class="rd-form-row">
+          <label class="rd-form-label">{{ field.label }}</label>
+          <select *ngIf="field.type === 'select'" class="rd-form-control" [(ngModel)]="addForm[field.name]">
+            <option value="">Select {{ field.label }}...</option>
+            <option *ngFor="let opt of field.options" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+          <input *ngIf="field.type === 'input'" class="rd-form-control" type="text"
+            [(ngModel)]="addForm[field.name]" [placeholder]="field.label">
+          <input *ngIf="field.type === 'date'" class="rd-form-control" type="date"
+            [(ngModel)]="addForm[field.name]">
+          <input *ngIf="field.type === 'number'" class="rd-form-control" type="number"
+            [(ngModel)]="addForm[field.name]">
+          <textarea *ngIf="field.type === 'textarea'" class="rd-form-control rd-form-textarea"
+            [(ngModel)]="addForm[field.name]" [placeholder]="field.label" rows="3"></textarea>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="addPanelTab?.addMethod === 'auto'">
+        <p class="rd-auto-msg">
+          Click <strong>Create</strong> to automatically generate a
+          {{ addPanelTab?.addLabel?.toLowerCase() }} from this record.
+          All fields will be pre-populated.
+        </p>
+      </ng-container>
+
+      <div *ngIf="addError" class="rd-add-error">{{ addError }}</div>
+    </div>
+
+    <div class="rd-add-panel-foot">
+      <button class="rd-cancel-btn" (click)="closeAddPanel()">Cancel</button>
+      <button class="rd-submit-btn" (click)="submitAddForm()" [disabled]="addSubmitting">
+        {{ addSubmitting ? 'Saving…' : (addPanelTab?.addMethod === 'auto' ? 'Create' : 'Save') }}
+      </button>
+    </div>
+  </aside>
+</ng-container>
+
+

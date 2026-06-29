@@ -1,0 +1,94 @@
+{
+  "resource": "contacts",
+  "api": "/api/v1/contacts",
+  "titleField": "fullName",
+  "subtitleField": "company",
+  "statusField": "status",
+  "headerActions": [
+    { "label": "Edit", "action": "edit", "style": "secondary" }
+  ],
+  "tabs": [
+    {
+      "key": "overview",
+      "label": "Overview",
+      "type": "overview",
+      "fieldGroups": [
+        {
+          "label": "Contact Information",
+          "fields": [
+            { "name": "fullName",  "label": "Full Name" },
+            { "name": "company",   "label": "Company" },
+            { "name": "jobTitle",  "label": "Job Title" },
+            { "name": "email",     "label": "Email" },
+            { "name": "phone",     "label": "Phone" },
+            { "name": "industry",  "label": "Industry" },
+            { "name": "country",   "label": "Country" },
+            { "name": "status",    "label": "Status" }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "deals",
+      "label": "Deals",
+      "type": "related-list",
+      "relatedApi": "/api/v1/contacts/{id}/deals",
+      "columns": [
+        { "name": "dealName",          "label": "Deal Name" },
+        { "name": "amount",            "label": "Amount (₹)" },
+        { "name": "stage",             "label": "Stage" },
+        { "name": "expectedCloseDate", "label": "Close Date" }
+      ]
+    },
+    {
+      "key": "activities",
+      "label": "Activities",
+      "type": "related-list",
+      "relatedApi": "/api/v1/contacts/{id}/activities",
+      "columns": [
+        { "name": "type",    "label": "Type" },
+        { "name": "subject", "label": "Subject" },
+        { "name": "dueDate", "label": "Date" },
+        { "name": "status",  "label": "Status" }
+      ],
+      "addLabel": "Log Activity",
+      "addApi": "/api/v1/activities",
+      "addDefaults": { "relatedType": "Contact", "status": "Pending" },
+      "addFields": [
+        { "name": "type",    "label": "Activity Type", "type": "select",
+          "options": [
+            {"label":"Call","value":"Call"},{"label":"Email","value":"Email"},
+            {"label":"Meeting","value":"Meeting"},{"label":"Demo","value":"Demo"}
+          ]
+        },
+        { "name": "subject",    "label": "Subject",     "type": "input" },
+        { "name": "assignedTo", "label": "Assigned To", "type": "input", "isDisabled": true },
+        { "name": "dueDate",    "label": "Date",        "type": "date" }
+      ]
+    },
+    {
+      "key": "quotes",
+      "label": "Quotes",
+      "type": "related-list",
+      "relatedApi": "/api/v1/contacts/{id}/quotes",
+      "columns": [
+        { "name": "quoteNumber", "label": "Quote #" },
+        { "name": "amount",      "label": "Amount (₹)" },
+        { "name": "validUntil",  "label": "Valid Until" },
+        { "name": "status",      "label": "Status" }
+      ]
+    },
+    {
+      "key": "invoices",
+      "label": "Invoices",
+      "type": "related-list",
+      "relatedApi": "/api/v1/contacts/{id}/invoices",
+      "columns": [
+        { "name": "invoiceNumber", "label": "Invoice #" },
+        { "name": "amount",        "label": "Amount (₹)" },
+        { "name": "dueDate",       "label": "Due Date" },
+        { "name": "status",        "label": "Status" }
+      ]
+    }
+  ]
+}

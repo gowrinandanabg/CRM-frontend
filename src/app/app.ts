@@ -1,12 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { OToastComponent } from 'orque-ui';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  standalone: true,
+  imports: [RouterOutlet, OToastComponent],
+  template: `<router-outlet /><o-toast />`,
+  styles: [`
+    :host { display: block; height: 100%; }
+  `]
 })
-export class App {
-  protected readonly title = signal('CRM-frontend');
-}
+export class App {}

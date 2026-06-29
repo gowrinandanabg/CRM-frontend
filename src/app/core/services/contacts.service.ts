@@ -28,7 +28,7 @@ export interface ContactResponse {
 export class ContactsService {
   private http = inject(HttpClient);
 
-  private readonly apiUrl = 'http://localhost:8082/api/v1/contacts';
+  private readonly apiUrl = `http://${window.location.hostname}:8085/api/v1/contacts`;
 
   getContacts(): Observable<ContactResponse[]> {
     return this.http.get<ContactResponse[]>(this.apiUrl);

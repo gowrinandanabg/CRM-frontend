@@ -1,0 +1,57 @@
+{
+  "name": "Campaigns",
+  "title": "Campaigns",
+  "store": "CampaignStore",
+  "api": "/api/v1/campaigns",
+  "workflowApiBase": "/api/v1/campaigns",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      { "label": "All",       "value": "All",       "isDefault": true },
+      { "label": "Draft",     "value": "DRAFT"     },
+      { "label": "Running",   "value": "RUNNING"   },
+      { "label": "Completed", "value": "COMPLETED" },
+      { "label": "Failed",    "value": "FAILED"    }
+    ],
+    "statusMap": {
+      "DRAFT":     ["DRAFT"],
+      "RUNNING":   ["RUNNING"],
+      "COMPLETED": ["COMPLETED"],
+      "FAILED":    ["FAILED"]
+    }
+  },
+  "tableList": [
+    { "name": "campaignName", "label": "Campaign Name", "isHeaderView": true, "width": "18rem" },
+    { "name": "subjectLine",  "label": "Subject Line",  "isHeaderView": true, "width": "16rem" },
+    { "name": "mailboxId",    "label": "Mailbox ID",    "isHeaderView": true, "width": "10rem" },
+    { "name": "status",       "label": "Status",        "isHeaderView": true, "pipe": "status", "width": "10rem" },
+    { "name": "createdAt",    "label": "Created At",    "isHeaderView": true, "pipe": "date",   "width": "12rem" }
+  ],
+  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "duplicate": true },
+  "contextMenuActions": [
+    { "label": "View",   "action": "view"       },
+    { "label": "Edit",   "action": "edit"       },
+    { "label": "Pause",  "action": "deactivate","showWhen": ["Active"]        },
+    { "label": "Resume", "action": "activate",  "showWhen": ["Draft","Paused"] },
+    { "label": "Delete", "action": "delete"     }
+  ],
+  "steps": [
+    {
+      "stepName": "step1", "label": "Campaign Details", "index": 0,
+      "fields": [
+        { "name": "campaignName", "label": "Campaign Name", "type": "input",    "required": true, "colSpan": "col-1" },
+        { "name": "subjectLine",  "label": "Subject Line",  "type": "input",    "required": true, "colSpan": "col-1" },
+        { "name": "mailboxId",    "label": "Mailbox ID",    "type": "input",    "inputType": "number", "colSpan": "col-1" },
+        { "name": "status",       "label": "Status",        "type": "select",   "colSpan": "col-1",
+          "options": [
+            { "label": "Draft",     "value": "DRAFT"     },
+            { "label": "Running",   "value": "RUNNING"   },
+            { "label": "Completed", "value": "COMPLETED" },
+            { "label": "Failed",    "value": "FAILED"    }
+          ]
+        },
+        { "name": "emailBody",    "label": "Email Body",    "type": "textarea", "colSpan": "col-3" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,586 @@
+// ── Record Detail Page ────────────────────────────────────────────────────
+.record-detail {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: calc(100vh - 60px);
+  background: var(--crm-bg);
+}
+
+// ── Page loading / error states ───────────────────────────────────────────
+.rd-page-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: calc(100vh - 100px);
+  color: var(--crm-text-2);
+  font-size: 0.9rem;
+
+  &--error {
+    color: var(--crm-danger);
+  }
+}
+
+.rd-back-link {
+  background: none;
+  border: none;
+  color: var(--crm-primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+// ── Spinner ───────────────────────────────────────────────────────────────
+.rd-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--crm-border);
+  border-top-color: var(--crm-primary);
+  border-radius: 50%;
+  animation: rd-spin 0.7s linear infinite;
+
+  &--sm {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+  }
+}
+
+@keyframes rd-spin { to { transform: rotate(360deg); } }
+
+// ── Header ────────────────────────────────────────────────────────────────
+.rd-header {
+  background: var(--crm-card);
+  border: 1px solid var(--crm-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rd-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--crm-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--crm-text-2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--crm-hover);
+    color: var(--crm-text-1);
+  }
+}
+
+.rd-header-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.rd-header-text {
+  min-width: 0;
+}
+
+.rd-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--crm-text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rd-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--crm-text-3);
+}
+
+.rd-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(67, 56, 202, 0.1);
+  color: var(--crm-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &--closed-won   { background: rgba(16,185,129,.12); color: #059669; }
+  &--closed-lost  { background: rgba(239,68,68,.1);   color: var(--crm-danger); }
+  &--qualified    { background: rgba(245,158,11,.1);  color: #D97706; }
+  &--converted    { background: rgba(16,185,129,.12); color: #059669; }
+  &--new          { background: rgba(100,116,139,.1); color: var(--crm-text-2); }
+  &--active       { background: rgba(16,185,129,.12); color: #059669; }
+  &--inactive     { background: rgba(239,68,68,.1);   color: var(--crm-danger); }
+}
+
+.rd-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rd-action-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+
+  &--primary {
+    background: var(--crm-primary);
+    color: #fff;
+    &:hover { background: var(--crm-primary-dark); }
+  }
+  &--secondary {
+    background: none;
+    border: 1px solid var(--crm-border);
+    color: var(--crm-text-1);
+    &:hover { background: var(--crm-hover); }
+  }
+  &--danger {
+    background: rgba(220, 38, 38, .08);
+    border: 1px solid rgba(220,38,38,.2);
+    color: var(--crm-danger);
+    &:hover { background: var(--crm-danger); color: #fff; }
+  }
+  &--success {
+    background: rgba(16,185,129,.1);
+    border: 1px solid rgba(16,185,129,.3);
+    color: #059669;
+    &:hover { background: #059669; color: #fff; }
+  }
+}
+
+// ── Tabs Card ─────────────────────────────────────────────────────────────
+.rd-tabs-card {
+  background: var(--crm-card);
+  border: 1px solid var(--crm-border);
+  border-radius: 12px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.rd-tab-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--crm-border);
+  background: var(--crm-hover);
+  overflow-x: auto;
+  padding: 0 8px;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.rd-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--crm-text-2);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  margin-bottom: -1px;
+
+  &:hover { color: var(--crm-text-1); }
+
+  &--active {
+    color: var(--crm-primary);
+    border-bottom-color: var(--crm-primary);
+    font-weight: 600;
+  }
+}
+
+.rd-tab-count {
+  background: var(--crm-primary);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 99px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.rd-tab-body {
+  padding: 20px;
+}
+
+// ── Overview ──────────────────────────────────────────────────────────────
+.rd-field-group { margin-bottom: 24px; }
+
+.rd-group-label {
+  margin: 0 0 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--crm-text-3);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--crm-border);
+}
+
+.rd-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px 24px;
+}
+
+.rd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rd-field-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--crm-text-3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.rd-field-value {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--crm-text-1);
+  word-break: break-word;
+}
+
+// ── Related list ──────────────────────────────────────────────────────────
+.rd-related-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.rd-related-count {
+  font-size: 0.8rem;
+  color: var(--crm-text-3);
+}
+
+.rd-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--crm-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: var(--crm-primary-dark); }
+
+  &--empty {
+    background: none;
+    border: 1px dashed var(--crm-border);
+    color: var(--crm-primary);
+    &:hover { background: rgba(67,56,202,.06); }
+  }
+}
+
+.rd-tab-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.rd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 24px;
+  color: var(--crm-text-3);
+  font-size: 0.85rem;
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────
+.rd-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--crm-border);
+  border-radius: 8px;
+}
+
+.rd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--crm-border);
+  }
+
+  th {
+    background: var(--crm-hover);
+    color: var(--crm-text-3);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  td { color: var(--crm-text-1); }
+
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--crm-hover); }
+
+  .rd-th-actions, .rd-td-actions {
+    width: 120px;
+    text-align: right;
+  }
+
+  .rd-td-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+}
+
+.rd-row-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--crm-border);
+  background: none;
+  color: var(--crm-text-1);
+  white-space: nowrap;
+  transition: all 0.12s;
+
+  &:hover { background: var(--crm-hover); }
+
+  &--primary {
+    background: var(--crm-primary);
+    border-color: var(--crm-primary);
+    color: #fff;
+    &:hover { background: var(--crm-primary-dark); }
+  }
+  &--success {
+    background: rgba(16,185,129,.1);
+    border-color: rgba(16,185,129,.3);
+    color: #059669;
+    &:hover { background: #059669; color: #fff; }
+  }
+}
+
+.rd-done-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #059669;
+
+  &--rejected { color: var(--crm-danger); }
+}
+
+.rd-stage-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(67,56,202,.08);
+  color: var(--crm-primary);
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.rd-status-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(100,116,139,.1);
+  color: var(--crm-text-2);
+
+  &--paid    { background: rgba(16,185,129,.12); color: #059669; }
+  &--sent    { background: rgba(245,158,11,.1);  color: #D97706; }
+  &--overdue { background: rgba(239,68,68,.1);   color: var(--crm-danger); }
+  &--draft   { background: rgba(100,116,139,.1); color: var(--crm-text-2); }
+}
+
+// ── Add Panel ─────────────────────────────────────────────────────────────
+.rd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.25);
+  z-index: 200;
+}
+
+.rd-add-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 380px;
+  background: var(--crm-card);
+  border-left: 1px solid var(--crm-border);
+  box-shadow: -8px 0 32px rgba(0,0,0,.12);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+}
+
+.rd-add-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--crm-border);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--crm-text-1);
+}
+
+.rd-panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--crm-text-3);
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  &:hover { background: var(--crm-hover); color: var(--crm-text-1); }
+}
+
+.rd-add-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rd-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.rd-form-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--crm-text-2);
+}
+
+.rd-form-control {
+  padding: 8px 12px;
+  border: 1px solid var(--crm-border);
+  border-radius: 8px;
+  font-size: 0.84rem;
+  color: var(--crm-text-1);
+  background: var(--crm-bg);
+  outline: none;
+  transition: border-color .15s;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:focus { border-color: var(--crm-primary); background: #fff; }
+}
+
+.rd-form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.rd-auto-msg {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--crm-text-2);
+  line-height: 1.6;
+  padding: 20px;
+  background: rgba(67,56,202,.04);
+  border: 1px solid rgba(67,56,202,.12);
+  border-radius: 8px;
+}
+
+.rd-add-error {
+  padding: 10px 14px;
+  background: rgba(220,38,38,.06);
+  border: 1px solid rgba(220,38,38,.2);
+  border-radius: 8px;
+  color: var(--crm-danger);
+  font-size: 0.82rem;
+}
+
+.rd-add-panel-foot {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--crm-border);
+  justify-content: flex-end;
+}
+
+.rd-cancel-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--crm-border);
+  background: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--crm-text-2);
+  cursor: pointer;
+  &:hover { background: var(--crm-hover); }
+}
+
+.rd-submit-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--crm-primary);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) { background: var(--crm-primary-dark); }
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+
+.rd-row-clickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover td {
+    background: var(--crm-hover);
+  }
+}
+
+
+

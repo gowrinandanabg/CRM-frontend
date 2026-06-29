@@ -1,0 +1,265 @@
+{
+  "name": "Tasks",
+  "title": "Tasks",
+  "store": "TaskStore",
+  "api": "/api/v1/tasks",
+  "workflowApiBase": "/api/v1/tasks",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      {
+        "label": "All",
+        "value": "All",
+        "isDefault": true
+      },
+      {
+        "label": "Pending",
+        "value": "PENDING"
+      },
+      {
+        "label": "In Progress",
+        "value": "IN_PROGRESS"
+      },
+      {
+        "label": "Completed",
+        "value": "COMPLETED"
+      },
+      {
+        "label": "Cancelled",
+        "value": "CANCELLED"
+      }
+    ],
+    "statusMap": {
+      "PENDING": [
+        "PENDING"
+      ],
+      "IN_PROGRESS": [
+        "IN_PROGRESS"
+      ],
+      "COMPLETED": [
+        "COMPLETED"
+      ],
+      "CANCELLED": [
+        "CANCELLED"
+      ]
+    }
+  },
+  "tableList": [
+    {
+      "name": "title",
+      "label": "Task",
+      "isHeaderView": true,
+      "width": "18rem"
+    },
+    {
+      "name": "relatedType",
+      "label": "Related To",
+      "isHeaderView": true,
+      "pipe": "status",
+      "width": "10rem"
+    },
+    {
+      "name": "relatedName",
+      "label": "Record",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "assignedTo",
+      "label": "Assigned To",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "priority",
+      "label": "Priority",
+      "isHeaderView": true,
+      "pipe": "status",
+      "width": "10rem"
+    },
+    {
+      "name": "dueDate",
+      "label": "Due Date",
+      "isHeaderView": true,
+      "pipe": "date",
+      "width": "10rem"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "isHeaderView": true,
+      "pipe": "status",
+      "width": "10rem"
+    }
+  ],
+  "tableTool": {
+    "add": true,
+    "edit": true,
+    "refresh": true,
+    "export": true,
+    "clear": true
+  },
+  "contextMenuActions": [
+    {
+      "label": "View",
+      "action": "view"
+    },
+    {
+      "label": "Edit",
+      "action": "edit"
+    },
+    {
+      "label": "Complete",
+      "action": "approve",
+      "showWhen": [
+        "Open",
+        "In Progress",
+        "Overdue"
+      ]
+    },
+    {
+      "label": "Delete",
+      "action": "delete"
+    }
+  ],
+  "steps": [
+    {
+      "stepName": "step1",
+      "label": "Task Details",
+      "index": 0,
+      "fields": [
+        {
+          "name": "title",
+          "label": "Task Title",
+          "type": "input",
+          "required": true,
+          "colSpan": "col-2"
+        },
+        {
+          "name": "relatedType",
+          "label": "Related To",
+          "type": "select",
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Lead",
+              "value": "Lead"
+            },
+            {
+              "label": "Contact",
+              "value": "Contact"
+            },
+            {
+              "label": "Account",
+              "value": "Account"
+            },
+            {
+              "label": "Deal",
+              "value": "Deal"
+            }
+          ]
+        },
+        {
+          "name": "relatedName",
+          "label": "Record Name",
+          "type": "input",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "taskType",
+          "label": "Task Type",
+          "type": "select",
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Call",
+              "value": "CALL"
+            },
+            {
+              "label": "Meeting",
+              "value": "MEETING"
+            },
+            {
+              "label": "Follow Up",
+              "value": "FOLLOW_UP"
+            },
+            {
+              "label": "Proposal Review",
+              "value": "PROPOSAL_REVIEW"
+            },
+            {
+              "label": "Customer Visit",
+              "value": "CUSTOMER_VISIT"
+            },
+            {
+              "label": "Demo",
+              "value": "DEMO"
+            }
+          ]
+        },
+        {
+          "name": "assignedTo",
+          "label": "Assigned To",
+          "type": "input",
+          "colSpan": "col-1",
+          "isDisabled": true
+        },
+        {
+          "name": "priority",
+          "label": "Priority",
+          "type": "select",
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Low",
+              "value": "LOW"
+            },
+            {
+              "label": "Medium",
+              "value": "MEDIUM"
+            },
+            {
+              "label": "High",
+              "value": "HIGH"
+            },
+            {
+              "label": "Critical",
+              "value": "CRITICAL"
+            }
+          ]
+        },
+        {
+          "name": "status",
+          "label": "Status",
+          "type": "select",
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Pending",
+              "value": "PENDING"
+            },
+            {
+              "label": "In Progress",
+              "value": "IN_PROGRESS"
+            },
+            {
+              "label": "Completed",
+              "value": "COMPLETED"
+            },
+            {
+              "label": "Cancelled",
+              "value": "CANCELLED"
+            }
+          ]
+        },
+        {
+          "name": "dueDate",
+          "label": "Due Date",
+          "type": "date",
+          "colSpan": "col-1",
+          "inputType": "date"
+        }
+      ]
+    }
+  ]
+}

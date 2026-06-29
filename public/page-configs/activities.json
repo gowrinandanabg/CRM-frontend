@@ -1,0 +1,227 @@
+{
+  "name": "Activities",
+  "title": "Activities",
+  "store": "ActivityStore",
+  "api": "/api/v1/activities",
+  "workflowApiBase": "/api/v1/activities",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      {
+        "label": "All",
+        "value": "All",
+        "isDefault": true
+      },
+      {
+        "label": "Pending",
+        "value": "Pending"
+      },
+      {
+        "label": "Completed",
+        "value": "Completed"
+      }
+    ],
+    "statusMap": {
+      "Pending": [
+        "Pending"
+      ],
+      "Completed": [
+        "Completed"
+      ]
+    }
+  },
+  "tableList": [
+    {
+      "name": "type",
+      "label": "Type",
+      "isHeaderView": true,
+      "pipe": "status",
+      "width": "10rem"
+    },
+    {
+      "name": "subject",
+      "label": "Subject",
+      "isHeaderView": true,
+      "width": "18rem"
+    },
+    {
+      "name": "relatedType",
+      "label": "Related To",
+      "isHeaderView": true,
+      "pipe": "status",
+      "width": "10rem"
+    },
+    {
+      "name": "relatedName",
+      "label": "Record",
+      "isHeaderView": true,
+      "width": "14rem"
+    },
+    {
+      "name": "contact",
+      "label": "Contact",
+      "isHeaderView": false,
+      "width": "14rem"
+    },
+    {
+      "name": "assignedTo",
+      "label": "Assigned To",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "dueDate",
+      "label": "Date",
+      "isHeaderView": true,
+      "pipe": "date",
+      "width": "10rem"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "isHeaderView": true,
+      "pipe": "status",
+      "width": "10rem"
+    }
+  ],
+  "tableTool": {
+    "add": true,
+    "refresh": true,
+    "export": true,
+    "clear": true
+  },
+  "contextMenuActions": [
+    {
+      "label": "View",
+      "action": "view"
+    },
+    {
+      "label": "Complete",
+      "action": "approve",
+      "showWhen": [
+        "Pending"
+      ]
+    },
+    {
+      "label": "Delete",
+      "action": "delete"
+    }
+  ],
+  "steps": [
+    {
+      "stepName": "step1",
+      "label": "Activity Details",
+      "index": 0,
+      "fields": [
+        {
+          "name": "type",
+          "label": "Activity Type",
+          "type": "select",
+          "required": true,
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Call",
+              "value": "Call"
+            },
+            {
+              "label": "Email",
+              "value": "Email"
+            },
+            {
+              "label": "Meeting",
+              "value": "Meeting"
+            },
+            {
+              "label": "Demo",
+              "value": "Demo"
+            },
+            {
+              "label": "Note",
+              "value": "Note"
+            }
+          ]
+        },
+        {
+          "name": "subject",
+          "label": "Subject",
+          "type": "input",
+          "required": true,
+          "colSpan": "col-1"
+        },
+        {
+          "name": "relatedType",
+          "label": "Related To",
+          "type": "select",
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Lead",
+              "value": "Lead"
+            },
+            {
+              "label": "Contact",
+              "value": "Contact"
+            },
+            {
+              "label": "Account",
+              "value": "Account"
+            },
+            {
+              "label": "Deal",
+              "value": "Deal"
+            }
+          ]
+        },
+        {
+          "name": "relatedName",
+          "label": "Record Name",
+          "type": "input",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "contact",
+          "label": "Contact Person",
+          "type": "input",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "assignedTo",
+          "label": "Assigned To",
+          "type": "input",
+          "colSpan": "col-1",
+          "isDisabled": true
+        },
+        {
+          "name": "dueDate",
+          "label": "Date",
+          "type": "date",
+          "colSpan": "col-1",
+          "inputType": "date"
+        },
+        {
+          "name": "duration",
+          "label": "Duration (mins)",
+          "type": "input",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "status",
+          "label": "Status",
+          "type": "select",
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Pending",
+              "value": "Pending"
+            },
+            {
+              "label": "Completed",
+              "value": "Completed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

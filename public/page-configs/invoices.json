@@ -1,0 +1,206 @@
+{
+  "name": "Invoices",
+  "title": "Invoices",
+  "store": "InvoiceStore",
+  "api": "/api/v1/invoices",
+  "workflowApiBase": "/api/v1/invoices",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      {
+        "label": "All",
+        "value": "All",
+        "isDefault": true
+      },
+      {
+        "label": "Draft",
+        "value": "Draft"
+      },
+      {
+        "label": "Sent",
+        "value": "Sent"
+      },
+      {
+        "label": "Paid",
+        "value": "Paid"
+      },
+      {
+        "label": "Overdue",
+        "value": "Overdue"
+      }
+    ],
+    "statusMap": {
+      "Draft": [
+        "Draft"
+      ],
+      "Sent": [
+        "Sent"
+      ],
+      "Paid": [
+        "Paid"
+      ],
+      "Overdue": [
+        "Overdue"
+      ]
+    }
+  },
+  "tableList": [
+    {
+      "name": "invoiceNumber",
+      "label": "Invoice #",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "contact",
+      "label": "Contact",
+      "isHeaderView": true,
+      "width": "14rem"
+    },
+    {
+      "name": "account",
+      "label": "Account",
+      "isHeaderView": true,
+      "width": "14rem"
+    },
+    {
+      "name": "amount",
+      "label": "Amount (\u20b9)",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "dueDate",
+      "label": "Due Date",
+      "isHeaderView": true,
+      "pipe": "date",
+      "width": "10rem"
+    },
+    {
+      "name": "paidDate",
+      "label": "Paid Date",
+      "isHeaderView": true,
+      "pipe": "date",
+      "width": "10rem"
+    },
+    {
+      "name": "createdAt",
+      "label": "Created",
+      "isHeaderView": false,
+      "pipe": "date",
+      "width": "10rem"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "isHeaderView": true,
+      "pipe": "status",
+      "width": "10rem"
+    }
+  ],
+  "tableTool": {
+    "add": true,
+    "edit": true,
+    "refresh": true,
+    "export": true
+  },
+  "contextMenuActions": [
+    {
+      "label": "View",
+      "action": "view"
+    },
+    {
+      "label": "Edit",
+      "action": "edit",
+      "showWhen": [
+        "Draft"
+      ]
+    },
+    {
+      "label": "Send",
+      "action": "submit",
+      "showWhen": [
+        "Draft"
+      ]
+    },
+    {
+      "label": "Mark Paid",
+      "action": "approve",
+      "showWhen": [
+        "Sent",
+        "Overdue"
+      ]
+    },
+    {
+      "label": "Delete",
+      "action": "delete"
+    }
+  ],
+  "steps": [
+    {
+      "stepName": "step1",
+      "label": "Invoice Details",
+      "index": 0,
+      "fields": [
+        {
+          "name": "invoiceNumber",
+          "label": "Invoice Number",
+          "type": "input",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "contact",
+          "label": "Contact",
+          "type": "input",
+          "required": true,
+          "colSpan": "col-1"
+        },
+        {
+          "name": "account",
+          "label": "Account",
+          "type": "input",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "amount",
+          "label": "Amount (\u20b9)",
+          "type": "input",
+          "inputType": "number",
+          "required": true,
+          "colSpan": "col-1"
+        },
+        {
+          "name": "dueDate",
+          "label": "Due Date",
+          "type": "date",
+          "colSpan": "col-1",
+          "inputType": "date"
+        },
+        {
+          "name": "status",
+          "label": "Status",
+          "type": "select",
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Draft",
+              "value": "Draft"
+            },
+            {
+              "label": "Sent",
+              "value": "Sent"
+            },
+            {
+              "label": "Paid",
+              "value": "Paid"
+            },
+            {
+              "label": "Overdue",
+              "value": "Overdue"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,244 @@
+{
+  "name": "Deals",
+  "title": "Deals",
+  "store": "DealStore",
+  "api": "/api/v1/deals",
+  "workflowApiBase": "/api/v1/deals",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      {
+        "label": "All",
+        "value": "All",
+        "isDefault": true
+      },
+      {
+        "label": "Prospecting",
+        "value": "Prospecting"
+      },
+      {
+        "label": "Proposal",
+        "value": "Proposal"
+      },
+      {
+        "label": "Negotiation",
+        "value": "Negotiation"
+      },
+      {
+        "label": "Won",
+        "value": "Won"
+      },
+      {
+        "label": "Lost",
+        "value": "Lost"
+      }
+    ],
+    "statusMap": {
+      "Prospecting": [
+        "Prospecting"
+      ],
+      "Proposal": [
+        "Proposal"
+      ],
+      "Negotiation": [
+        "Negotiation"
+      ],
+      "Won": [
+        "Closed Won"
+      ],
+      "Lost": [
+        "Closed Lost"
+      ]
+    }
+  },
+  "tableList": [
+    {
+      "name": "dealName",
+      "label": "Deal Name",
+      "isHeaderView": true,
+      "width": "18rem"
+    },
+    {
+      "name": "account",
+      "label": "Account",
+      "isHeaderView": true,
+      "width": "14rem"
+    },
+    {
+      "name": "contact",
+      "label": "Contact",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "amount",
+      "label": "Amount (\u20b9)",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "stage",
+      "label": "Stage",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "probability",
+      "label": "Probability %",
+      "isHeaderView": true,
+      "width": "10rem"
+    },
+    {
+      "name": "expectedCloseDate",
+      "label": "Close Date",
+      "isHeaderView": true,
+      "pipe": "date",
+      "width": "10rem"
+    },
+    {
+      "name": "assignedTo",
+      "label": "Owner",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "isHeaderView": true,
+      "pipe": "status",
+      "width": "12rem"
+    }
+  ],
+  "tableTool": {
+    "add": true,
+    "edit": true,
+    "refresh": true,
+    "export": true,
+    "duplicate": true
+  },
+  "contextMenuActions": [
+    {
+      "label": "Open",
+      "action": "navigate"
+    },
+    {
+      "label": "Edit",
+      "action": "edit"
+    },
+    {
+      "label": "Mark Won",
+      "action": "approve",
+      "showWhen": [
+        "Prospecting",
+        "Qualification",
+        "Proposal",
+        "Negotiation"
+      ]
+    },
+    {
+      "label": "Mark Lost",
+      "action": "reject",
+      "showWhen": [
+        "Prospecting",
+        "Qualification",
+        "Proposal",
+        "Negotiation"
+      ]
+    },
+    {
+      "label": "Delete",
+      "action": "delete"
+    }
+  ],
+  "steps": [
+    {
+      "stepName": "step1",
+      "label": "Deal Details",
+      "index": 0,
+      "fields": [
+        {
+          "name": "dealName",
+          "label": "Deal Name",
+          "type": "input",
+          "required": true,
+          "colSpan": "col-2"
+        },
+        {
+          "name": "account",
+          "label": "Account",
+          "type": "input",
+          "required": true,
+          "colSpan": "col-1"
+        },
+        {
+          "name": "contact",
+          "label": "Primary Contact",
+          "type": "input",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "amount",
+          "label": "Deal Amount (\u20b9)",
+          "type": "input",
+          "inputType": "number",
+          "required": true,
+          "colSpan": "col-1"
+        },
+        {
+          "name": "stage",
+          "label": "Stage",
+          "type": "select",
+          "required": true,
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Prospecting",
+              "value": "Prospecting"
+            },
+            {
+              "label": "Qualification",
+              "value": "Qualification"
+            },
+            {
+              "label": "Proposal",
+              "value": "Proposal"
+            },
+            {
+              "label": "Negotiation",
+              "value": "Negotiation"
+            },
+            {
+              "label": "Closed Won",
+              "value": "Closed Won"
+            },
+            {
+              "label": "Closed Lost",
+              "value": "Closed Lost"
+            }
+          ]
+        },
+        {
+          "name": "probability",
+          "label": "Probability (%)",
+          "type": "input",
+          "inputType": "number",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "expectedCloseDate",
+          "label": "Expected Close Date",
+          "type": "date",
+          "colSpan": "col-1",
+          "inputType": "date"
+        },
+        {
+          "name": "assignedTo",
+          "label": "Deal Owner",
+          "type": "input",
+          "colSpan": "col-1",
+          "isDisabled": true
+        }
+      ]
+    }
+  ]
+}

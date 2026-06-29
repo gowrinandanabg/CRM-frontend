@@ -1,0 +1,67 @@
+{
+  "name": "Users",
+  "title": "Users",
+  "store": "UserStore",
+  "api": "/api/v1/users",
+  "workflowApiBase": "/api/v1/users",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      { "label": "All",      "value": "All",    "isDefault": true },
+      { "label": "Active",   "value": "ACTIVE"  },
+      { "label": "Inactive", "value": "INACTIVE"}
+    ],
+    "statusMap": {
+      "ACTIVE":   ["ACTIVE"],
+      "INACTIVE": ["INACTIVE"]
+    }
+  },
+  "tableList": [
+    { "name": "id",          "label": "ID",           "isHeaderView": false, "width": "5rem"  },
+    { "name": "firstName",   "label": "First Name",   "isHeaderView": true,  "width": "12rem" },
+    { "name": "lastName",    "label": "Last Name",    "isHeaderView": true,  "width": "12rem" },
+    { "name": "username",    "label": "Username",     "isHeaderView": true,  "width": "14rem" },
+    { "name": "email",       "label": "Email",        "isHeaderView": true,  "width": "20rem" },
+    { "name": "phone",       "label": "Phone",        "isHeaderView": true,  "width": "12rem" },
+    { "name": "role",        "label": "Role",         "isHeaderView": true,  "pipe": "status", "width": "12rem" },
+    { "name": "status",      "label": "Status",       "isHeaderView": true,  "pipe": "status", "width": "10rem" },
+    { "name": "lastLoginAt", "label": "Last Login",   "isHeaderView": true,  "pipe": "date",   "width": "14rem" }
+  ],
+  "tableTool": { "add": true, "edit": false, "refresh": true, "export": true },
+  "contextMenuActions": [
+    { "label": "Edit",           "action": "edit"       },
+    { "label": "Reset Password", "action": "reset-password" },
+    { "label": "Activate",       "action": "activate",   "showWhen": ["INACTIVE"] },
+    { "label": "Deactivate",     "action": "deactivate", "showWhen": ["ACTIVE"]   },
+    { "label": "Delete",         "action": "delete"     }
+  ],
+  "steps": [
+    {
+      "stepName": "step1", "label": "User Details", "index": 0,
+      "fields": [
+        { "name": "firstName", "label": "First Name",  "type": "input",    "required": true,  "colSpan": "col-1" },
+        { "name": "lastName",  "label": "Last Name",   "type": "input",    "required": true,  "colSpan": "col-1" },
+        { "name": "username",  "label": "Username",    "type": "input",    "required": true,  "colSpan": "col-1" },
+        { "name": "email",     "label": "Email",       "type": "input",    "required": true,  "colSpan": "col-1", "inputType": "email" },
+        { "name": "phone",     "label": "Phone",       "type": "input",    "required": false, "colSpan": "col-1" },
+        { "name": "password",  "label": "Password",    "type": "input",    "required": true,  "colSpan": "col-1", "inputType": "password" },
+        {
+          "name": "role",      "label": "Role",        "type": "select", "required": true,  "colSpan": "col-1",
+          "options": [
+            { "label": "Admin",        "value": "ADMIN"       },
+            { "label": "Sales Admin",  "value": "SALES_ADMIN" },
+            { "label": "Sales",        "value": "SALES"       },
+            { "label": "Sales User",   "value": "SALES_USER"  }
+          ]
+        },
+        {
+          "name": "status",    "label": "Status",      "type": "select", "required": false, "colSpan": "col-1",
+          "options": [
+            { "label": "Active",   "value": "ACTIVE"   },
+            { "label": "Inactive", "value": "INACTIVE" }
+          ]
+        }
+      ]
+    }
+  ]
+}

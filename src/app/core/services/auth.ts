@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, throwError, tap, catchError } from 'rxjs';
 
 interface LoginRequest {
   usernameOrEmail: string;
@@ -17,23 +17,25 @@ interface AuthResponse {
   role: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  private readonly apiUrl = 'http://localhost:8082/api/v1/auth';
+  private readonly apiUrl = `http://${window.location.hostname}:8085/api/v1/auth`;
   private readonly accessTokenKey = 'accessToken';
   private readonly refreshTokenKey = 'refreshToken';
+  private readonly userKey = 'crmUser';
 
   login(request: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request).pipe(
-      tap((response) => {
-        localStorage.setItem(this.accessTokenKey, response.accessToken);
-        localStorage.setItem(this.refreshTokenKey, response.refreshToken);
-      })
+      tap(r => this.storeSession(r))
     );
+  }
+
+  private storeSession(r: AuthResponse): void {
+    localStorage.setItem(this.accessTokenKey, r.accessToken);
+    localStorage.setItem(this.refreshTokenKey, r.refreshToken);
+    localStorage.setItem(this.userKey, JSON.stringify({ name: r.username, email: r.email, role: r.role }));
   }
 
   getAccessToken(): string | null {
@@ -47,5 +49,6 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(this.accessTokenKey);
     localStorage.removeItem(this.refreshTokenKey);
+    localStorage.removeItem(this.userKey);
   }
 }

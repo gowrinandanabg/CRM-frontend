@@ -1,49 +1,328 @@
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(180px, 1fr));
-  gap: 18px;
-  margin-top: 24px;
-}
-
-.metric-card {
-  background: white;
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+.dash-wrap {
+  padding: 28px 28px 40px;
   display: flex;
   flex-direction: column;
+  gap: 24px;
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────────
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dash-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--crm-text-1);
+  margin: 0;
+}
+
+.dash-subtitle {
+  font-size: 0.85rem;
+  color: var(--crm-text-3);
+  margin: 4px 0 0;
+}
+
+.dash-header-actions { display: flex; gap: 10px; }
+
+.dash-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all .15s;
+
+  &--primary {
+    background: var(--crm-primary);
+    color: #fff;
+    &:hover { background: var(--crm-primary-dark); text-decoration: none; }
+  }
+
+  &--outline {
+    background: var(--crm-card);
+    color: var(--crm-text-2);
+    border: 1px solid var(--crm-border);
+    &:hover { background: var(--crm-hover); text-decoration: none; }
+  }
+}
+
+// ── KPI metrics grid (o-stat-card fills each cell) ─────────────────────────────
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+// ── Skeleton loader ────────────────────────────────────────────────────────────
+.metric-skeleton {
+  height: 110px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: var(--crm-radius-lg);
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+// ── Session stats strip ────────────────────────────────────────────────────────
+.session-stats-strip {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  // each o-stat-card grows equally in the strip
+  o-stat-card { flex: 1; min-width: 180px; }
+}
+
+.session-link {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  border: 1px dashed var(--crm-border);
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--crm-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s;
+  align-self: center;
+
+  &:hover {
+    background: var(--crm-primary-soft);
+    border-color: var(--crm-primary);
+    text-decoration: none;
+  }
+}
+
+// ── Row layout ─────────────────────────────────────────────────────────────────
+.dash-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  &--bottom { grid-template-columns: 1.1fr .9fr; }
+
+  @media (max-width: 960px) { grid-template-columns: 1fr; }
+}
+
+// ── Shared card shell ──────────────────────────────────────────────────────────
+.dash-card {
+  background: var(--crm-card);
+  border: 1px solid var(--crm-border);
+  border-radius: var(--crm-radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--crm-shadow);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--crm-text-1);
+}
+
+.card-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--crm-primary);
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+// ── Pipeline ───────────────────────────────────────────────────────────────────
+.pipeline-stages { display: flex; flex-direction: column; gap: 14px; }
+
+.pipeline-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 70px 28px;
+  align-items: center;
   gap: 12px;
+}
 
-  span {
-    color: #64748b;
-    font-weight: 600;
-    font-size: 14px;
-  }
+.pipeline-label {
+  font-size: 0.78rem;
+  color: var(--crm-text-2);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-  strong {
-    color: #0f172a;
-    font-size: 28px;
+.pipeline-bar-wrap {
+  height: 8px;
+  background: var(--crm-border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.pipeline-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .4s ease;
+}
+
+.pipeline-amount {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--crm-text-2);
+  text-align: right;
+}
+
+.pipeline-count {
+  font-size: 0.72rem;
+  color: var(--crm-text-3);
+  text-align: center;
+  background: var(--crm-hover);
+  border-radius: 99px;
+  padding: 2px 6px;
+}
+
+// ── Activities ─────────────────────────────────────────────────────────────────
+.activity-list { display: flex; flex-direction: column; gap: 12px; }
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.activity-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-body { flex: 1; min-width: 0; }
+
+.activity-subject {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--crm-text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-meta {
+  font-size: 0.72rem;
+  color: var(--crm-text-3);
+  margin-top: 2px;
+}
+
+.activity-type-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+  white-space: nowrap;
+  align-self: center;
+}
+
+// ── Quick Actions ──────────────────────────────────────────────────────────────
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 10px;
+  border: 1px solid var(--crm-border);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all .15s;
+
+  &:hover {
+    border-color: var(--crm-primary);
+    background: var(--crm-primary-soft);
+    text-decoration: none;
+    transform: translateY(-2px);
   }
 }
 
-.error {
-  color: #dc2626;
+.quick-action__icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
 }
 
-@media (max-width: 1200px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(3, 1fr);
+.quick-action__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--crm-text-2);
+  text-align: center;
+}
+
+// ── Email stats ────────────────────────────────────────────────────────────────
+.email-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.email-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--crm-border);
+  border-radius: 12px;
+}
+
+.email-stat__ring {
+  position: relative;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: conic-gradient(var(--color) calc(var(--pct) * 1%), #E5E7EB 0);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 10px;
+    background: var(--crm-card);
+    border-radius: 50%;
   }
 }
 
-@media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.email-stat__pct {
+  position: relative;
+  z-index: 1;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--crm-text-1);
 }
 
-@media (max-width: 520px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
+.email-stat__label {
+  font-size: 0.75rem;
+  color: var(--crm-text-3);
+  font-weight: 500;
+}
+
+.email-stat__val {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--crm-text-1);
 }

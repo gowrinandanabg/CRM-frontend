@@ -1,0 +1,70 @@
+{
+  "name": "Accounts",
+  "title": "Accounts",
+  "store": "AccountStore",
+  "api": "/api/v1/accounts",
+  "workflowApiBase": "/api/v1/accounts",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      { "label": "All",      "value": "All",      "isDefault": true },
+      { "label": "Active",   "value": "Active"   },
+      { "label": "Prospect", "value": "Prospect" },
+      { "label": "Inactive", "value": "Inactive" }
+    ],
+    "statusMap": {
+      "Active":   ["Active"],
+      "Prospect": ["Prospect"],
+      "Inactive": ["Inactive"]
+    }
+  },
+  "tableList": [
+    { "name": "companyName",    "label": "Company",      "isHeaderView": true,  "width": "16rem" },
+    { "name": "industry",       "label": "Industry",     "isHeaderView": true,  "width": "12rem" },
+    { "name": "phone",          "label": "Phone",        "isHeaderView": true,  "width": "14rem" },
+    { "name": "website",        "label": "Website",      "isHeaderView": true,  "width": "14rem" },
+    { "name": "employees",      "label": "Employees",    "isHeaderView": true,  "width": "10rem" },
+    { "name": "annualRevenue",  "label": "Revenue",      "isHeaderView": true,  "width": "12rem" },
+    { "name": "country",        "label": "Country",      "isHeaderView": true,  "width": "10rem" },
+    { "name": "status",         "label": "Status",       "isHeaderView": true,  "pipe": "status", "width": "10rem" },
+    { "name": "createdAt",      "label": "Created",      "isHeaderView": false, "pipe": "date",   "width": "10rem" }
+  ],
+  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "import": true },
+  "contextMenuActions": [
+    { "label": "Open",       "action": "navigate"   },
+    { "label": "Edit",       "action": "edit"       },
+    { "label": "Deactivate", "action": "deactivate" },
+    { "label": "Delete",     "action": "delete"     }
+  ],
+  "steps": [
+    {
+      "stepName": "step1", "label": "Account Info", "index": 0,
+      "fields": [
+        { "name": "companyName",   "label": "Company Name",    "type": "input",  "required": true, "colSpan": "col-1" },
+        { "name": "industry",      "label": "Industry",        "type": "select", "colSpan": "col-1",
+          "options": [
+            { "label": "Technology",  "value": "Technology"  },
+            { "label": "IT Services", "value": "IT Services" },
+            { "label": "E-Commerce",  "value": "E-Commerce"  },
+            { "label": "Consulting",  "value": "Consulting"  },
+            { "label": "Software",    "value": "Software"    },
+            { "label": "Manufacturing","value": "Manufacturing"},
+            { "label": "Other",       "value": "Other"       }
+          ]
+        },
+        { "name": "phone",         "label": "Phone",           "type": "input", "inputType": "tel", "colSpan": "col-1" },
+        { "name": "website",       "label": "Website",         "type": "input", "colSpan": "col-1" },
+        { "name": "employees",     "label": "Employees",       "type": "input", "inputType": "number", "colSpan": "col-1" },
+        { "name": "annualRevenue", "label": "Annual Revenue",  "type": "input", "colSpan": "col-1" },
+        { "name": "country",       "label": "Country",         "type": "input", "colSpan": "col-1" },
+        { "name": "status",        "label": "Status",          "type": "select","colSpan": "col-1",
+          "options": [
+            { "label": "Active",   "value": "Active"   },
+            { "label": "Prospect", "value": "Prospect" },
+            { "label": "Inactive", "value": "Inactive" }
+          ]
+        }
+      ]
+    }
+  ]
+}

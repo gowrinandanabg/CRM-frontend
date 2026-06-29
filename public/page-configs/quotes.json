@@ -1,0 +1,219 @@
+{
+  "name": "Quotes",
+  "title": "Quotes",
+  "store": "QuoteStore",
+  "api": "/api/v1/quotes",
+  "workflowApiBase": "/api/v1/quotes",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      {
+        "label": "All",
+        "value": "All",
+        "isDefault": true
+      },
+      {
+        "label": "Draft",
+        "value": "Draft"
+      },
+      {
+        "label": "Sent",
+        "value": "Sent"
+      },
+      {
+        "label": "Accepted",
+        "value": "Accepted"
+      },
+      {
+        "label": "Rejected",
+        "value": "Rejected"
+      }
+    ],
+    "statusMap": {
+      "Draft": [
+        "Draft"
+      ],
+      "Sent": [
+        "Sent"
+      ],
+      "Accepted": [
+        "Accepted"
+      ],
+      "Rejected": [
+        "Rejected"
+      ]
+    }
+  },
+  "tableList": [
+    {
+      "name": "quoteNumber",
+      "label": "Quote #",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "contact",
+      "label": "Contact",
+      "isHeaderView": true,
+      "width": "14rem"
+    },
+    {
+      "name": "account",
+      "label": "Account",
+      "isHeaderView": true,
+      "width": "14rem"
+    },
+    {
+      "name": "amount",
+      "label": "Amount (\u20b9)",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "validUntil",
+      "label": "Valid Until",
+      "isHeaderView": true,
+      "pipe": "date",
+      "width": "10rem"
+    },
+    {
+      "name": "createdBy",
+      "label": "Created By",
+      "isHeaderView": true,
+      "width": "12rem"
+    },
+    {
+      "name": "createdAt",
+      "label": "Created",
+      "isHeaderView": false,
+      "pipe": "date",
+      "width": "10rem"
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "isHeaderView": true,
+      "pipe": "status",
+      "width": "10rem"
+    }
+  ],
+  "tableTool": {
+    "add": true,
+    "edit": true,
+    "refresh": true,
+    "export": true,
+    "duplicate": true
+  },
+  "contextMenuActions": [
+    {
+      "label": "View",
+      "action": "view"
+    },
+    {
+      "label": "Edit",
+      "action": "edit",
+      "showWhen": [
+        "Draft"
+      ]
+    },
+    {
+      "label": "Send",
+      "action": "submit",
+      "showWhen": [
+        "Draft"
+      ]
+    },
+    {
+      "label": "Accept",
+      "action": "approve",
+      "showWhen": [
+        "Sent"
+      ]
+    },
+    {
+      "label": "Reject",
+      "action": "reject",
+      "showWhen": [
+        "Sent"
+      ]
+    },
+    {
+      "label": "Generate Invoice",
+      "action": "gen-invoice",
+      "showWhen": [
+        "Accepted"
+      ]
+    },
+    {
+      "label": "Delete",
+      "action": "delete"
+    }
+  ],
+  "steps": [
+    {
+      "stepName": "step1",
+      "label": "Quote Details",
+      "index": 0,
+      "fields": [
+        {
+          "name": "quoteNumber",
+          "label": "Quote Number",
+          "type": "input",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "contact",
+          "label": "Contact",
+          "type": "input",
+          "required": true,
+          "colSpan": "col-1"
+        },
+        {
+          "name": "account",
+          "label": "Account",
+          "type": "input",
+          "colSpan": "col-1"
+        },
+        {
+          "name": "amount",
+          "label": "Amount (\u20b9)",
+          "type": "input",
+          "inputType": "number",
+          "required": true,
+          "colSpan": "col-1"
+        },
+        {
+          "name": "validUntil",
+          "label": "Valid Until",
+          "type": "date",
+          "colSpan": "col-1",
+          "inputType": "date"
+        },
+        {
+          "name": "status",
+          "label": "Status",
+          "type": "select",
+          "colSpan": "col-1",
+          "options": [
+            {
+              "label": "Draft",
+              "value": "Draft"
+            },
+            {
+              "label": "Sent",
+              "value": "Sent"
+            },
+            {
+              "label": "Accepted",
+              "value": "Accepted"
+            },
+            {
+              "label": "Rejected",
+              "value": "Rejected"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

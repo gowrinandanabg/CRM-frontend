@@ -1,1 +1,464 @@
-/* You can add global styles to this file, and also import other style files */
+// ── CRM Design System ──────────────────────────────────────────────────────
+
+// Colors — Orque CRM Palette
+// Primary: Navy Dark #0F3460 | Accent: Lemon Zest #D4A017
+:root {
+  --color-sidebar:       #0A1628;
+  --color-primary:       #0F3460;
+  --color-primary-hover: #0A2342;
+  --color-accent:        #D4A017;
+  --color-accent-hover:  #B8860B;
+  --color-bg:            #F8FAFC;
+  --color-surface:       #FFFFFF;
+  --color-text:          #0F172A;
+  --color-text-muted:    #64748B;
+  --color-border:        #E2E8F0;
+
+  --crm-bg:           #F8FAFC;
+  --crm-card:         #FFFFFF;
+  --crm-primary:      #0F3460;
+  --crm-primary-dark: #0A2342;
+  --crm-primary-soft: #E8EDF5;
+  --crm-accent:       #D4A017;
+  --crm-accent-dark:  #B8860B;
+  --crm-accent-soft:  rgba(212, 160, 23, 0.12);
+  --crm-success:      #16A34A;
+  --crm-success-soft: #DCFCE7;
+  --crm-warning:      #F59E0B;
+  --crm-warning-soft: #FEF3C7;
+  --crm-danger:       #EF4444;
+  --crm-danger-soft:  #FEE2E2;
+  --crm-info:         #0EA5E9;
+  --crm-info-soft:    #E0F2FE;
+  --crm-text-1:       #0F172A;
+  --crm-text-2:       #374151;
+  --crm-text-3:       #64748B;
+  --crm-text-4:       #9CA3AF;
+  --crm-border:       #E2E8F0;
+  --crm-border-dark:  #CBD5E1;
+  --crm-hover:        #F8FAFC;
+  --crm-shadow:       0 8px 30px rgba(0, 0, 0, 0.05);
+  --crm-shadow-md:    0 4px 16px rgba(0, 0, 0, 0.08);
+  --crm-shadow-lg:    0 16px 48px rgba(0, 0, 0, 0.10);
+  --crm-radius:       16px;
+  --crm-radius-sm:    8px;
+  --crm-radius-md:    12px;
+  --crm-radius-lg:    18px;
+  --crm-radius-btn:   10px;
+  --crm-sidebar-w:    72px;
+  --crm-topbar-h:     64px;
+}
+
+body.dark-theme {
+  --crm-bg:           #0B0F19;
+  --crm-card:         #111827;
+  --crm-primary:      #1A4A80;
+  --crm-primary-dark: #0F3460;
+  --crm-primary-soft: rgba(15, 52, 96, 0.25);
+  --crm-accent:       #D4A017;
+  --crm-accent-dark:  #B8860B;
+  --crm-accent-soft:  rgba(212, 160, 23, 0.12);
+  --crm-success:      #10B981;
+  --crm-success-soft: rgba(16, 185, 129, 0.15);
+  --crm-warning:      #F59E0B;
+  --crm-warning-soft: rgba(245, 158, 11, 0.15);
+  --crm-danger:       #EF4444;
+  --crm-danger-soft:  rgba(239, 68, 68, 0.15);
+  --crm-info:         #0EA5E9;
+  --crm-info-soft:    rgba(14, 165, 233, 0.15);
+  
+  --crm-text-1:       #F9FAFB;
+  --crm-text-2:       #E5E7EB;
+  --crm-text-3:       #9CA3AF;
+  --crm-text-4:       #6B7280;
+  
+  --crm-border:       #1F2937;
+  --crm-border-dark:  #374151;
+  --crm-hover:        #1F2937;
+  
+  --crm-shadow:       0 8px 30px rgba(0, 0, 0, 0.3);
+  --crm-shadow-md:    0 4px 16px rgba(0, 0, 0, 0.4);
+  --crm-shadow-lg:    0 16px 48px rgba(0, 0, 0, 0.5);
+
+  // Library OCalendar Component Dark Mode Overrides
+  .o-cal {
+    background: var(--crm-card) !important;
+    box-shadow: var(--crm-shadow) !important;
+  }
+  .o-cal-nav {
+    border-bottom: 1px solid var(--crm-border) !important;
+  }
+  .o-cal-title {
+    color: var(--crm-text-1) !important;
+    &:hover {
+      color: var(--crm-primary) !important;
+    }
+  }
+  .o-cal-btn {
+    border: 1px solid var(--crm-border) !important;
+    color: var(--crm-text-2) !important;
+    &:hover {
+      background: var(--crm-hover) !important;
+    }
+  }
+  .o-cal-grid {
+    border-top: 1px solid var(--crm-border) !important;
+  }
+  .o-cal-wd {
+    color: var(--crm-text-3) !important;
+    background: var(--crm-hover) !important;
+    border-bottom: 1px solid var(--crm-border) !important;
+  }
+  .o-cal-day {
+    border-right: 1px solid var(--crm-border) !important;
+    border-bottom: 1px solid var(--crm-border) !important;
+    
+    &--other {
+      background: rgba(255, 255, 255, 0.02) !important;
+      .o-cal-daynum {
+        color: var(--crm-text-4) !important;
+      }
+    }
+    
+    &--today {
+      .o-cal-daynum {
+        background: var(--crm-primary) !important;
+        color: #fff !important;
+      }
+    }
+    
+    &--clickable {
+      &:hover {
+        background: var(--crm-primary-soft) !important;
+      }
+    }
+  }
+  .o-cal-daynum {
+    color: var(--crm-text-1) !important;
+  }
+  
+  // Library OTable Component Dark Mode Overrides
+  .o-table-wrapper {
+    background: var(--crm-card) !important;
+    border-color: var(--crm-border) !important;
+  }
+  .o-table__head {
+    background: var(--crm-hover) !important;
+  }
+  .o-table__th {
+    color: var(--crm-text-1) !important;
+    border-right-color: var(--crm-border) !important;
+    border-bottom-color: var(--crm-border-dark) !important;
+  }
+  .o-table__body {
+    background: var(--crm-card) !important;
+  }
+  .o-table__row {
+    border-bottom-color: var(--crm-border) !important;
+    
+    &:hover {
+      background: var(--crm-hover) !important;
+    }
+    
+    &--selected {
+      background: var(--crm-primary-soft) !important;
+      &:hover {
+        background: var(--crm-primary-soft) !important;
+      }
+    }
+  }
+  .o-table__td {
+    color: var(--crm-text-2) !important;
+    border-right-color: var(--crm-border) !important;
+  }
+  .o-table__empty-text {
+    color: var(--crm-text-3) !important;
+  }
+  .o-table__pagination {
+    border-top-color: var(--crm-border) !important;
+    background: var(--crm-hover) !important;
+  }
+  .o-table__pagination-info {
+    color: var(--crm-text-3) !important;
+  }
+  .o-table__pagination-info--bold {
+    color: var(--crm-text-1) !important;
+  }
+  .o-table__page-btn {
+    border-color: var(--crm-border) !important;
+    background: var(--crm-card) !important;
+    color: var(--crm-text-2) !important;
+    
+    &:hover:not(:disabled) {
+      background: var(--crm-hover) !important;
+      border-color: var(--crm-border-dark) !important;
+    }
+    
+    &--active {
+      background: var(--crm-primary) !important;
+      border-color: var(--crm-primary) !important;
+      color: #fff !important;
+    }
+  }
+  
+  // Library OTableTools Component Dark Mode Overrides
+  .o-table-tools {
+    background: var(--crm-hover) !important;
+    border-bottom-color: var(--crm-border) !important;
+  }
+  .o-table-tools__btn {
+    color: var(--crm-text-2) !important;
+    border-right-color: var(--crm-border) !important;
+    
+    &:hover {
+      background: var(--crm-border) !important;
+    }
+  }
+  
+  // Search filter and standard inputs inside shared UI
+  .search-filter, .o-search-filter {
+    background: var(--crm-card) !important;
+    border-color: var(--crm-border) !important;
+    color: var(--crm-text-1) !important;
+  }
+  // Library OToggleButton Component Dark Mode Overrides
+  .o-toggle-button__item {
+    background: var(--crm-card) !important;
+    border-color: var(--crm-border) !important;
+    color: var(--crm-text-2) !important;
+    
+    &:hover:not(.o-toggle-button__item--active) {
+      background: var(--crm-hover) !important;
+      border-color: var(--crm-border-dark) !important;
+    }
+    
+    &--active {
+      background: var(--crm-primary) !important;
+      border-color: var(--crm-primary) !important;
+      color: #fff !important;
+      
+      &:hover {
+        background: var(--crm-primary-dark) !important;
+        border-color: var(--crm-primary-dark) !important;
+      }
+    }
+  }
+
+  // Library PageHeader Component Dark Mode Overrides
+  .o-page-header {
+    background: var(--crm-card) !important;
+    border-bottom: 1px solid var(--crm-border) !important;
+  }
+  .o-ph-title {
+    color: var(--crm-text-1) !important;
+  }
+  .o-ph-subtitle {
+    color: var(--crm-text-3) !important;
+  }
+  .o-ph-back-btn {
+    background: var(--crm-card) !important;
+    border-color: var(--crm-border) !important;
+    color: var(--crm-text-2) !important;
+    &:hover {
+      background: var(--crm-hover) !important;
+      border-color: var(--crm-border-dark) !important;
+      color: var(--crm-primary) !important;
+    }
+  }
+  .o-ph-crumb--active {
+    color: var(--crm-text-1) !important;
+  }
+  .o-ph-crumb--link {
+    color: var(--crm-text-3) !important;
+    &:hover {
+      color: var(--crm-primary) !important;
+    }
+  }
+
+  // Library ODotsAction Component Dark Mode Overrides
+  .o-dots-action__menu {
+    background: var(--crm-card) !important;
+    border-color: var(--crm-border) !important;
+    box-shadow: var(--crm-shadow-lg) !important;
+  }
+  .o-dots-action__item {
+    color: var(--crm-text-2) !important;
+    &:hover {
+      background: var(--crm-hover) !important;
+      color: var(--crm-text-1) !important;
+    }
+    &--danger {
+      color: #dc2626 !important;
+      &:hover {
+        background: var(--crm-danger-soft) !important;
+        color: var(--crm-danger) !important;
+      }
+    }
+  }
+  .o-dots-action__trigger {
+    color: var(--crm-text-2) !important;
+    &:hover, &--open {
+      background: var(--crm-hover) !important;
+    }
+  }
+}
+
+// Elevate rows with open actions to prevent z-axis clipping/overlaying
+.o-table__row:has(.o-dots-action__trigger--open),
+.o-table__row:has(.o-dots-action__menu) {
+  position: relative !important;
+  z-index: 50 !important;
+}
+
+// Force dots context menu to open towards the right
+.o-dots-action__menu {
+  left: 0 !important;
+  right: auto !important;
+}
+
+// Reset & Base
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  background: var(--crm-bg);
+  color: var(--crm-text-1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--crm-text-1);
+  line-height: 1.3;
+}
+
+p { margin: 0; }
+
+a {
+  color: var(--crm-primary);
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input, textarea, select {
+  font-family: inherit;
+}
+
+// Scrollbar
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--crm-border-dark); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--crm-text-4); }
+
+// ── Utility classes ────────────────────────────────────────────────────────
+
+.crm-card {
+  background: var(--crm-card);
+  border: 1px solid var(--crm-border);
+  border-radius: var(--crm-radius-lg);
+  box-shadow: var(--crm-shadow);
+  padding: 24px;
+}
+
+.crm-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+
+  &--active, &--won, &--paid, &--completed, &--approved  { background: var(--crm-success-soft); color: var(--crm-success); }
+  &--inactive, &--lost, &--closed                        { background: var(--crm-hover); color: var(--crm-text-3); }
+  &--pending, &--draft, &--open, &--new                  { background: var(--crm-warning-soft); color: #92400E; }
+  &--hot, &--urgent, &--overdue                          { background: var(--crm-danger-soft); color: var(--crm-danger); }
+  &--qualified, &--proposal, &--contacted                { background: var(--crm-primary-soft); color: var(--crm-primary); }
+  &--sent, &--negotiation                               { background: var(--crm-info-soft); color: var(--crm-info); }
+}
+
+.crm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: var(--crm-radius-btn);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+
+  &--primary {
+    background: var(--crm-primary);
+    color: #fff;
+    &:hover { background: var(--crm-primary-dark); }
+  }
+  &--outline {
+    background: transparent;
+    color: var(--crm-text-2);
+    border: 1px solid var(--crm-border);
+    &:hover { background: var(--crm-hover); }
+  }
+  &--ghost {
+    background: transparent;
+    color: var(--crm-primary);
+    &:hover { background: var(--crm-primary-soft); }
+  }
+}
+
+// ── Page layout helpers ────────────────────────────────────────────────────
+
+.page-wrap {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: calc(100vh - var(--crm-topbar-h));
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  &__left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--crm-text-1);
+  }
+
+  &__subtitle {
+    font-size: 0.8rem;
+    color: var(--crm-text-3);
+    font-weight: 500;
+  }
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+// Toast override spacing
+.o-toast-host { z-index: 9999 !important; }

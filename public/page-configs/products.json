@@ -1,0 +1,60 @@
+{
+  "name": "Products",
+  "title": "Products",
+  "store": "ProductStore",
+  "api": "/api/v1/products",
+  "workflowApiBase": "/api/v1/products",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      { "label": "All",      "value": "All",      "isDefault": true },
+      { "label": "Active",   "value": "Active"   },
+      { "label": "Inactive", "value": "Inactive" }
+    ],
+    "statusMap": {
+      "Active":   ["Active"],
+      "Inactive": ["Inactive"]
+    }
+  },
+  "tableList": [
+    { "name": "name",     "label": "Product",   "isHeaderView": true, "width": "18rem" },
+    { "name": "sku",      "label": "SKU",       "isHeaderView": true, "width": "12rem" },
+    { "name": "category", "label": "Category",  "isHeaderView": true, "width": "12rem" },
+    { "name": "price",    "label": "Price (₹)", "isHeaderView": true, "width": "12rem" },
+    { "name": "stock",    "label": "Stock",     "isHeaderView": true, "width": "10rem" },
+    { "name": "taxRate",  "label": "Tax",       "isHeaderView": true, "width": "8rem"  },
+    { "name": "status",   "label": "Status",    "isHeaderView": true, "pipe": "status", "width": "10rem" }
+  ],
+  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "import": true },
+  "contextMenuActions": [
+    { "label": "View",       "action": "view"       },
+    { "label": "Edit",       "action": "edit"       },
+    { "label": "Deactivate", "action": "deactivate","showWhen": ["Active"]   },
+    { "label": "Activate",   "action": "activate",  "showWhen": ["Inactive"] },
+    { "label": "Delete",     "action": "delete"     }
+  ],
+  "steps": [
+    {
+      "stepName": "step1", "label": "Product Details", "index": 0,
+      "fields": [
+        { "name": "name",     "label": "Product Name", "type": "input",  "required": true, "colSpan": "col-1" },
+        { "name": "sku",      "label": "SKU",          "type": "input",  "colSpan": "col-1" },
+        { "name": "category", "label": "Category",     "type": "select", "colSpan": "col-1",
+          "options": [
+            { "label": "Software", "value": "Software" },
+            { "label": "Service",  "value": "Service"  },
+            { "label": "Hardware", "value": "Hardware" }
+          ]
+        },
+        { "name": "price",    "label": "Price (₹)",    "type": "input",  "inputType": "number", "required": true, "colSpan": "col-1" },
+        { "name": "taxRate",  "label": "Tax Rate",     "type": "input",  "colSpan": "col-1" },
+        { "name": "status",   "label": "Status",       "type": "select", "colSpan": "col-1",
+          "options": [
+            { "label": "Active",   "value": "Active"   },
+            { "label": "Inactive", "value": "Inactive" }
+          ]
+        }
+      ]
+    }
+  ]
+}

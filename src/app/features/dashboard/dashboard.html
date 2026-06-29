@@ -1,66 +1,154 @@
-<o-page-header
-  title="CRM Dashboard"
-  subtitle="Sales CRM analytics overview">
-</o-page-header>
+<div class="dash-wrap">
 
-@if (loading) {
-  <p>Loading dashboard...</p>
-}
+  <!-- Header -->
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-title">{{ greeting() }}, {{ currentUser().name }} 👋</h1>
+      <p class="dash-subtitle">Here's what's happening with your CRM today.</p>
+    </div>
+    <div class="dash-header-actions">
+      <a [routerLink]="['/leads']" class="dash-btn dash-btn--outline">View All Leads</a>
+      <a [routerLink]="['/deals']" class="dash-btn dash-btn--primary">+ New Deal</a>
+    </div>
+  </div>
 
-@if (errorMessage) {
-  <p class="error">{{ errorMessage }}</p>
-}
+  @if (!loading()) {
 
-@if (summary) {
-  <section class="dashboard-grid">
-    <div class="metric-card">
-      <span>Total Contacts</span>
-      <strong>{{ summary.totalContacts }}</strong>
+  <!-- KPI Metrics Grid -->
+  <div class="metrics-grid">
+    @for (m of kpis(); track m.label) {
+    <o-stat-card
+      [label]="m.label"
+      [value]="m.value"
+      [sub]="m.sub"
+      [trend]="m.trend"
+      [trendUp]="m.trendUp"
+      [iconPath]="m.iconPath"
+      [color]="m.color"
+      variant="default">
+    </o-stat-card>
+    }
+  </div>
+
+  <!-- Session Stats Strip -->
+  @if (!isSalesUser()) {
+  <div class="session-stats-strip">
+    @for (s of sessionCards(); track s.label) {
+    <o-stat-card
+      [label]="s.label"
+      [value]="s.value"
+      [sub]="s.sub"
+      [iconPath]="s.iconPath"
+      [color]="s.color"
+      variant="compact">
+    </o-stat-card>
+    }
+    <a [routerLink]="['/active-sessions']" class="session-link">
+      View All Sessions →
+    </a>
+  </div>
+  }
+
+  } @else {
+  <div class="metrics-grid">
+    @for (i of [1,2,3,4,5,6]; track i) {
+    <div class="metric-skeleton"></div>
+    }
+  </div>
+  }
+
+  <!-- Row: Pipeline + Activities -->
+  <div class="dash-row">
+
+    <!-- Pipeline -->
+    <div class="dash-card pipeline-card">
+      <div class="card-header">
+        <h3 class="card-title">Deal Pipeline</h3>
+        <a [routerLink]="['/deals']" class="card-link">View all →</a>
+      </div>
+      <div class="pipeline-stages">
+        @for (stage of pipeline(); track stage.label) {
+        <div class="pipeline-row">
+          <span class="pipeline-label">{{ stage.label }}</span>
+          <div class="pipeline-bar-wrap">
+            <div class="pipeline-bar" [style.width.%]="stage.pct" [style.background]="stage.color"></div>
+          </div>
+          <span class="pipeline-amount">{{ stage.amount }}</span>
+          <span class="pipeline-count">{{ stage.count }}</span>
+        </div>
+        }
+      </div>
     </div>
 
-    <div class="metric-card">
-      <span>Total Leads</span>
-      <strong>{{ summary.totalLeads }}</strong>
+    <!-- Recent Activities -->
+    <div class="dash-card activity-card">
+      <div class="card-header">
+        <h3 class="card-title">Recent Activities</h3>
+        <a [routerLink]="['/activities']" class="card-link">View all →</a>
+      </div>
+      <div class="activity-list">
+        @for (a of activities(); track a.subject) {
+        <div class="activity-item">
+          <div class="activity-icon" [style.background]="a.color + '18'" [style.color]="a.color">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="a.icon" />
+            </svg>
+          </div>
+          <div class="activity-body">
+            <p class="activity-subject">{{ a.subject }}</p>
+            <p class="activity-meta">{{ a.contact }} · {{ a.time }}</p>
+          </div>
+          <span class="activity-type-badge" [style.color]="a.color" [style.background]="a.color + '18'">
+            {{ a.type }}
+          </span>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Row: Quick Actions + Email Stats -->
+  <div class="dash-row dash-row--bottom">
+
+    <!-- Quick Actions -->
+    <div class="dash-card quick-card">
+      <div class="card-header">
+        <h3 class="card-title">Quick Actions</h3>
+      </div>
+      <div class="quick-grid">
+        @for (qa of quickActions; track qa.label) {
+        <a class="quick-action" [routerLink]="[qa.route]">
+          <div class="quick-action__icon" [style.background]="qa.color + '18'" [style.color]="qa.color">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="qa.icon" />
+            </svg>
+          </div>
+          <span class="quick-action__label">{{ qa.label }}</span>
+        </a>
+        }
+      </div>
     </div>
 
-    <div class="metric-card">
-      <span>Hot Leads</span>
-      <strong>{{ summary.hotLeads }}</strong>
+    <!-- Email Performance -->
+    <div class="dash-card email-card">
+      <div class="card-header">
+        <h3 class="card-title">Email Performance</h3>
+        <a [routerLink]="['/campaigns']" class="card-link">View campaigns →</a>
+      </div>
+      <div class="email-stats">
+        @for (stat of emailStats(); track stat.label) {
+        <div class="email-stat">
+          <div class="email-stat__ring" [style.--pct]="stat.pct" [style.--color]="stat.color">
+            <span class="email-stat__pct">{{ stat.pct }}%</span>
+          </div>
+          <span class="email-stat__label">{{ stat.label }}</span>
+          <span class="email-stat__val">{{ stat.value }}</span>
+        </div>
+        }
+      </div>
     </div>
+  </div>
 
-    <div class="metric-card">
-      <span>Tasks Due Today</span>
-      <strong>{{ summary.tasksDueToday }}</strong>
-    </div>
-
-    <div class="metric-card">
-      <span>Revenue Generated</span>
-      <strong>{{ formatCurrency(summary.revenueGenerated) }}</strong>
-    </div>
-
-    <div class="metric-card">
-      <span>Pipeline Value</span>
-      <strong>{{ formatCurrency(summary.pipelineValue) }}</strong>
-    </div>
-
-    <div class="metric-card">
-      <span>Total Campaigns</span>
-      <strong>{{ summary.totalCampaigns }}</strong>
-    </div>
-
-    <div class="metric-card">
-      <span>Emails Sent</span>
-      <strong>{{ summary.emailsSent }}</strong>
-    </div>
-
-    <div class="metric-card">
-      <span>Emails Opened</span>
-      <strong>{{ summary.emailsOpened }}</strong>
-    </div>
-
-    <div class="metric-card">
-      <span>Emails Replied</span>
-      <strong>{{ summary.emailsReplied }}</strong>
-    </div>
-  </section>
-}
+</div>

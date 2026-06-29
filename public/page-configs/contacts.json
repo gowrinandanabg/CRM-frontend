@@ -1,0 +1,63 @@
+{
+  "name": "Contacts",
+  "title": "Contacts",
+  "store": "ContactStore",
+  "api": "/api/v1/contacts",
+  "workflowApiBase": "/api/v1/contacts",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      { "label": "All",      "value": "All",      "isDefault": true },
+      { "label": "New",      "value": "NEW"      },
+      { "label": "Reviewed", "value": "REVIEWED" }
+    ],
+    "statusMap": {
+      "NEW":      ["NEW"],
+      "REVIEWED": ["REVIEWED"]
+    }
+  },
+  "tableList": [
+    { "name": "fullName",  "label": "Name",      "isHeaderView": true,  "width": "14rem" },
+    { "name": "company",   "label": "Company",   "isHeaderView": true,  "width": "14rem" },
+    { "name": "jobTitle",  "label": "Job Title", "isHeaderView": true,  "width": "12rem" },
+    { "name": "email",     "label": "Email",     "isHeaderView": true,  "width": "16rem" },
+    { "name": "phone",     "label": "Phone",     "isHeaderView": true,  "width": "12rem" },
+    { "name": "industry",  "label": "Industry",  "isHeaderView": true,  "width": "12rem" },
+    { "name": "status",    "label": "Status",    "isHeaderView": true,  "pipe": "status", "width": "10rem" },
+    { "name": "createdAt", "label": "Created",   "isHeaderView": false, "pipe": "date",   "width": "10rem" }
+  ],
+  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "import": true, "duplicate": false },
+  "contextMenuActions": [
+    { "label": "Open",   "action": "navigate" },
+    { "label": "Edit",   "action": "edit" },
+    { "label": "Delete", "action": "delete" }
+  ],
+  "steps": [
+    {
+      "stepName": "step1", "label": "Contact Details", "index": 0,
+      "fields": [
+        { "name": "fullName",  "label": "Full Name",  "type": "input",  "required": true,        "colSpan": "col-1" },
+        { "name": "email",     "label": "Email",      "type": "input",  "inputType": "email", "required": true, "colSpan": "col-1" },
+        { "name": "phone",     "label": "Phone",      "type": "input",  "inputType": "tel",   "colSpan": "col-1" },
+        { "name": "company",   "label": "Company",    "type": "input",  "required": true,        "colSpan": "col-1" },
+        { "name": "jobTitle",  "label": "Job Title",  "type": "input",  "colSpan": "col-1" },
+        { "name": "industry",  "label": "Industry",   "type": "select", "colSpan": "col-1",
+          "options": [
+            { "label": "Technology",  "value": "Technology"  },
+            { "label": "IT Services", "value": "IT Services" },
+            { "label": "E-Commerce",  "value": "E-Commerce"  },
+            { "label": "Consulting",  "value": "Consulting"  },
+            { "label": "Software",    "value": "Software"    },
+            { "label": "Other",       "value": "Other"       }
+          ]
+        },
+        { "name": "status",    "label": "Status",     "type": "select", "colSpan": "col-1",
+          "options": [
+            { "label": "New",      "value": "NEW"      },
+            { "label": "Reviewed", "value": "REVIEWED" }
+          ]
+        }
+      ]
+    }
+  ]
+}

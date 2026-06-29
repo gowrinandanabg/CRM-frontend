@@ -1,0 +1,84 @@
+{
+  "name": "Leads",
+  "title": "Leads",
+  "store": "LeadStore",
+  "api": "/api/v1/leads",
+  "workflowApiBase": "/api/v1/leads",
+  "tableUniqueFieldName": "id",
+  "toggleButton": {
+    "elements": [
+      { "label": "All",          "value": "All",          "isDefault": true },
+      { "label": "New",          "value": "NEW"          },
+      { "label": "Qualified",    "value": "QUALIFIED"    },
+      { "label": "Converted",    "value": "CONVERTED"    },
+      { "label": "Disqualified", "value": "DISQUALIFIED" }
+    ],
+    "statusMap": {
+      "NEW":          ["NEW"],
+      "QUALIFIED":    ["QUALIFIED"],
+      "CONVERTED":    ["CONVERTED"],
+      "DISQUALIFIED": ["DISQUALIFIED"]
+    }
+  },
+  "contextMenuActions": [
+    { "label": "View",    "action": "view" },
+    { "label": "Edit",    "action": "edit",    "showWhen": ["NEW", "QUALIFIED"] },
+    { "label": "Qualify", "action": "qualify", "showWhen": ["NEW"] },
+    { "label": "Convert", "action": "submit",  "showWhen": ["QUALIFIED"] },
+    { "label": "Delete",  "action": "delete" }
+  ],
+  "tableList": [
+    { "name": "fullName",      "label": "Name",        "isHeaderView": true,  "width": "14rem" },
+    { "name": "company",       "label": "Company",     "isHeaderView": true,  "width": "12rem" },
+    { "name": "email",         "label": "Email",       "isHeaderView": true,  "width": "16rem" },
+    { "name": "phone",         "label": "Phone",       "isHeaderView": true,  "width": "12rem" },
+    { "name": "leadSource",    "label": "Source",      "isHeaderView": true,  "width": "10rem" },
+    { "name": "industry",      "label": "Industry",    "isHeaderView": true,  "width": "12rem" },
+    { "name": "assignedOwner", "label": "Assigned To", "isHeaderView": true,  "width": "12rem" },
+    { "name": "status",        "label": "Status",      "isHeaderView": true,  "pipe": "status", "width": "10rem" },
+    { "name": "createdAt",     "label": "Created",     "isHeaderView": false, "pipe": "date",   "width": "10rem" }
+  ],
+  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "import": true, "duplicate": true },
+  "steps": [
+    {
+      "stepName": "step1", "label": "Lead Info", "index": 0,
+      "fields": [
+        { "name": "fullName",      "label": "Full Name",      "type": "input",  "required": true,  "colSpan": "col-1" },
+        { "name": "email",         "label": "Email",          "type": "input",  "inputType": "email", "required": true, "colSpan": "col-1" },
+        { "name": "phone",         "label": "Phone",          "type": "input",  "inputType": "tel",   "colSpan": "col-1" },
+        { "name": "company",       "label": "Company",        "type": "input",  "required": true,  "colSpan": "col-1" },
+        { "name": "industry",      "label": "Industry",       "type": "select", "colSpan": "col-1",
+          "options": [
+            { "label": "Technology",  "value": "Technology"  },
+            { "label": "IT Services", "value": "IT Services" },
+            { "label": "E-Commerce",  "value": "E-Commerce"  },
+            { "label": "Consulting",  "value": "Consulting"  },
+            { "label": "Software",    "value": "Software"    },
+            { "label": "Other",       "value": "Other"       }
+          ]
+        },
+        { "name": "leadSource",    "label": "Lead Source",    "type": "select", "colSpan": "col-1",
+          "options": [
+            { "label": "Manual",             "value": "MANUAL" },
+            { "label": "Contact Conversion", "value": "CONTACT_CONVERSION" },
+            { "label": "CSV Import",         "value": "CSV_IMPORT" },
+            { "label": "Website",            "value": "WEBSITE" },
+            { "label": "Referral",           "value": "REFERRAL" },
+            { "label": "Other",              "value": "OTHER" }
+          ]
+        },
+        { "name": "status",        "label": "Status",         "type": "select", "colSpan": "col-1",
+          "options": [
+            { "label": "New",          "value": "NEW"          },
+            { "label": "Qualified",    "value": "QUALIFIED"    },
+            { "label": "Converted",    "value": "CONVERTED"    },
+            { "label": "Disqualified", "value": "DISQUALIFIED" }
+          ]
+        },
+        { "name": "assignedOwner", "label": "Assigned Owner", "type": "input",  "colSpan": "col-1", "isDisabled": true },
+        { "name": "estimatedValue","label": "Estimated Value","type": "input",  "inputType": "number", "colSpan": "col-1" },
+        { "name": "notes",         "label": "Notes",          "type": "textarea","colSpan": "col-3" }
+      ]
+    }
+  ]
+}
