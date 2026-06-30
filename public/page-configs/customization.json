@@ -1,0 +1,7 @@
+{
+  "name": "Customization",
+  "title": "System Customization",
+  "store": "CustomizationStore",
+  "api": "/api/v1/customization",
+  "tableTool": { "add": false, "edit": false, "refresh": true, "export": false, "print": false }
+}

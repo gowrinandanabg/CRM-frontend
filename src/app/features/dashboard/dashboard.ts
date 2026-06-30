@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { OStatCardComponent } from 'orque-ui';
-import { PageStoreService } from '../../core/services/page-store.service';
+import { OStatCardComponent, PageStoreService } from 'orque-ui';
 import { DashboardService } from '../../core/services/dashboard.service';
 
 interface KpiCard {

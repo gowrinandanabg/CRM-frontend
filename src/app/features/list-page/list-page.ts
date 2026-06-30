@@ -7,14 +7,30 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  inject
+  inject,
+  signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PageRendererComponent, PageAction, PageConfig, OToastService, OCalendarComponent, CalendarDay, CalendarDayEvent } from 'orque-ui';
-import { PageStoreService } from '../../core/services/page-store.service';
+import {
+  PageRendererComponent,
+  OTableToolsComponent,
+  ToggleTabsComponent,
+  PageAction,
+  PageConfig,
+  OToastService,
+  CalendarWorkspaceComponent,
+  CustomizationComponent,
+  DashboardBuilderComponent,
+  EmailWorkspaceComponent,
+  InventoryComponent,
+  ReportBuilderComponent,
+  ReportsComponent,
+  UserSettingsComponent,
+  PageStoreService
+} from 'orque-ui';
 import { KanbanComponent } from './kanban';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -22,7 +38,22 @@ import { catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-list-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageRendererComponent, KanbanComponent, OCalendarComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    PageRendererComponent,
+    OTableToolsComponent,
+    ToggleTabsComponent,
+    KanbanComponent,
+    CalendarWorkspaceComponent,
+    CustomizationComponent,
+    DashboardBuilderComponent,
+    EmailWorkspaceComponent,
+    InventoryComponent,
+    ReportBuilderComponent,
+    ReportsComponent,
+    UserSettingsComponent
+  ],
   template: `
     <div class="lp-container">
       @if (page && canShowKanban()) {
@@ -50,341 +81,68 @@ import { catchError } from 'rxjs/operators';
 
       <!-- Dynamic Custom Modules -->
       @if (resource === 'calendar') {
-        <div class="cal-container">
-          <div class="cal-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; border-bottom: 1px solid var(--crm-border); padding-bottom: 20px;">
-            <div>
-              <h2 class="cal-title">Calendar Workspace</h2>
-              <p class="cal-subtitle">Track your client intro calls, meetings, follow-ups, and demo dates.</p>
-              <div style="font-size: 0.74rem; color: var(--crm-text-4); margin-top: 4px; font-weight: 500;">
-                Current Time Zone: <strong>Asia/Kolkata (IST)</strong> | Working Hours: <strong>09:00 AM - 05:00 PM</strong>
-              </div>
-            </div>
-            
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <button [class.active]="calendarSubMode === 'calendar'" (click)="calendarSubMode = 'calendar'" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 600; border-radius: 6px; border: 1px solid var(--crm-border); background: var(--crm-card); color: var(--crm-text-2); cursor: pointer;" [style.border-color]="calendarSubMode === 'calendar' ? 'var(--crm-primary)' : ''" [style.color]="calendarSubMode === 'calendar' ? 'var(--crm-primary)' : ''">Calendar</button>
-              <button [class.active]="calendarSubMode === 'scheduler'" (click)="calendarSubMode = 'scheduler'" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 600; border-radius: 6px; border: 1px solid var(--crm-border); background: var(--crm-card); color: var(--crm-text-2); cursor: pointer;" [style.border-color]="calendarSubMode === 'scheduler' ? 'var(--crm-primary)' : ''" [style.color]="calendarSubMode === 'scheduler' ? 'var(--crm-primary)' : ''">Meeting Scheduler</button>
-              
-              <button (click)="syncCalendarProvider('google')" class="em-btn" style="background: rgba(219, 68, 85, 0.1); border-color: rgba(219, 68, 85, 0.3); color: #db4437; padding: 6px 12px; font-size: 0.76rem;">
-                Sync Google
-              </button>
-              <button (click)="syncCalendarProvider('outlook')" class="em-btn" style="background: rgba(0, 120, 215, 0.1); border-color: rgba(0, 120, 215, 0.3); color: #0078d7; padding: 6px 12px; font-size: 0.76rem;">
-                Sync Outlook
-              </button>
-            </div>
-          </div>
-
-          <!-- Main Mode Selector -->
-          @if (calendarSubMode === 'calendar') {
-            <div class="cal-card">
-              @if (loadingCustom) {
-                <div class="cal-loading">Loading events...</div>
-              } @else {
-                <o-calendar 
-                  [days]="calendarDays" 
-                  [currentDate]="calendarCurrentDate"
-                  (monthChange)="onCalendarMonthChange($event)"
-                  (dayClick)="onCalendarDayClick($event)">
-                </o-calendar>
-              }
-            </div>
-            
-            @if (selectedCalendarDay) {
-              <div class="cal-details">
-                <div class="cal-details-grid">
-                  <div class="cal-details-left">
-                    <h3 class="details-title">Events for {{ selectedCalendarDay.date | date:'longDate' }}</h3>
-                    @if (selectedCalendarDay.events.length) {
-                      <div class="details-list">
-                        @for (ev of selectedCalendarDay.events; track ev.label) {
-                          <div class="details-item" [attr.data-status]="ev.status">
-                            <span class="details-badge">{{ ev.status }}</span>
-                            <span class="details-label">{{ ev.label }}</span>
-                          </div>
-                        }
-                      </div>
-                    } @else {
-                      <p class="details-empty">No events scheduled for this day.</p>
-                    }
-                  </div>
-                  
-                  <div class="cal-details-right">
-                    <h3 class="details-title">Create New Event</h3>
-                    <div class="cal-event-form">
-                      <div class="form-group" style="margin-bottom: 12px;">
-                        <label class="form-label" style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--crm-text-2); margin-bottom: 4px;">Event Title</label>
-                        <input type="text" [(ngModel)]="newEventTitle" placeholder="e.g. Onboarding Call" class="form-input" style="width: 100%; border: 1px solid var(--crm-border); border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; background: var(--crm-bg); color: var(--crm-text-1); outline: none;">
-                      </div>
-                      <div class="form-group" style="margin-bottom: 12px;">
-                        <label class="form-label" style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--crm-text-2); margin-bottom: 4px;">Description</label>
-                        <input type="text" [(ngModel)]="newEventDesc" placeholder="e.g. Kickoff project scope" class="form-input" style="width: 100%; border: 1px solid var(--crm-border); border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; background: var(--crm-bg); color: var(--crm-text-1); outline: none;">
-                      </div>
-                      <div class="form-group" style="margin-bottom: 16px;">
-                        <label class="form-label" style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--crm-text-2); margin-bottom: 4px;">Assign To</label>
-                        <select [(ngModel)]="newEventAssign" class="form-input" style="width: 100%; border: 1px solid var(--crm-border); border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; background: var(--crm-bg); color: var(--crm-text-1); outline: none;">
-                          <option value="Admin">Admin</option>
-                          <option value="Demo Sales">Demo Sales</option>
-                        </select>
-                      </div>
-                      <button class="em-btn em-btn-primary" (click)="createCalendarEvent()">Create Event</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            }
-          } @else {
-            <!-- Availability Slots Scheduler -->
-            <div style="background: var(--crm-card); border: 1px solid var(--crm-border); border-radius: 18px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
-              <h3 style="font-size: 1rem; font-weight: 600; color: var(--crm-text-1); margin: 0 0 16px;">Schedule a Meeting</h3>
-              
-              <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 24px;">
-                <div style="flex: 1;">
-                  <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--crm-text-2); margin-bottom: 4px;">Select Date</label>
-                  <input type="date" [(ngModel)]="schedulerDate" (change)="loadAvailableSlots()" style="width: 100%; border: 1px solid var(--crm-border); border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; background: var(--crm-bg); color: var(--crm-text-1); outline: none;" />
-                </div>
-                <div style="flex: 1;">
-                  <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--crm-text-2); margin-bottom: 4px;">Duration (Minutes)</label>
-                  <select [(ngModel)]="schedulerDuration" (change)="loadAvailableSlots()" style="width: 100%; border: 1px solid var(--crm-border); border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; background: var(--crm-bg); color: var(--crm-text-1); outline: none;">
-                    <option [value]="30">30 Minutes</option>
-                    <option [value]="60">60 Minutes</option>
-                  </select>
-                </div>
-              </div>
-
-              @if (loadingSlots) {
-                <div style="text-align: center; padding: 24px; color: var(--crm-text-3);">Checking slots availability...</div>
-              } @else if (schedulerSlots.length === 0) {
-                <div style="text-align: center; padding: 24px; color: var(--crm-text-4);">Choose a date to see availability slots</div>
-              } @else {
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px;">
-                  <button *ngFor="let slot of schedulerSlots" 
-                          (click)="selectSlotToBook(slot)" 
-                          [disabled]="!slot.available"
-                          style="padding: 10px; border-radius: 8px; border: 1px solid var(--crm-border); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: center;"
-                          [style.background]="slot.available ? 'var(--crm-bg)' : 'rgba(0,0,0,0.03)'"
-                          [style.color]="slot.available ? 'var(--crm-text-1)' : 'var(--crm-text-4)'"
-                          [style.border-color]="slot.available ? 'var(--crm-primary-soft)' : ''">
-                    {{ slot.time }}
-                    <span style="display: block; font-size: 0.65rem; margin-top: 4px; font-weight: 500;" [style.color]="slot.available ? 'var(--crm-success)' : 'var(--crm-danger)'">
-                      {{ slot.available ? 'Available' : 'Booked' }}
-                    </span>
-                  </button>
-                </div>
-
-                <!-- Booking Modal / Confirm Dialog -->
-                <div *ngIf="selectedSlot" style="background: var(--crm-bg); border: 1px solid var(--crm-border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
-                  <h4 style="margin: 0; font-size: 0.9rem; font-weight: 600; color: var(--crm-text-2);">Book Slot: {{ selectedSlot.time }} on {{ schedulerDate }}</h4>
-                  <div style="display: flex; gap: 16px;">
-                    <input type="text" [(ngModel)]="slotBookingTitle" placeholder="Meeting Title (e.g. Intro Demo)" style="flex: 2; border: 1px solid var(--crm-border); border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; background: var(--crm-card); color: var(--crm-text-1); outline: none;" />
-                    <button (click)="bookMeetingSlot()" style="flex: 1; padding: 8px 16px; background: var(--crm-primary); border: none; border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: #fff; cursor: pointer;">Confirm Booking</button>
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
+        <app-calendar-workspace></app-calendar-workspace>
       }
-
       @else if (resource === 'reports') {
-        <div class="rep-container">
-          <div class="rep-header">
-            <h2 class="rep-title">Reports & Metrics</h2>
-            <p class="rep-subtitle">Analyze lead conversions, pipeline valuation, and revenue indicators.</p>
-          </div>
-          @if (loadingCustom) {
-            <div class="rep-loading">Loading report analytics...</div>
-          } @else {
-            <div class="rep-grid">
-              <div class="rep-card rep-summary">
-                <h3 class="card-title">Performance KPI Summary</h3>
-                <div class="kpi-group">
-                  <div class="kpi-box"><span class="kpi-label">Lead Conversion Rate</span><span class="kpi-value">65.3%</span></div>
-                  <div class="kpi-box"><span class="kpi-label">Forecasted Win Rate</span><span class="kpi-value">48.2%</span></div>
-                  <div class="kpi-box"><span class="kpi-label">Average Deal Size</span><span class="kpi-value">₹3,40,000</span></div>
-                </div>
-              </div>
-              <div class="rep-card">
-                <h3 class="card-title">Pipeline Opportunity Breakdown</h3>
-                <div class="bar-chart">
-                  @for (item of reportsPipelineData; track item.label) {
-                    <div class="bar-row">
-                      <span class="bar-label">{{ item.label }}</span>
-                      <div class="bar-fill-container"><div class="bar-fill" [style.width.%]="item.percentage" [style.background-color]="item.color"></div></div>
-                      <span class="bar-value">₹{{ item.value | number:'1.0-0' }}</span>
-                    </div>
-                  }
-                </div>
-              </div>
-              <div class="rep-card">
-                <h3 class="card-title">Conversion Funnel Stages</h3>
-                <div class="funnel-chart">
-                  <div class="funnel-stage" style="width: 100%; background: rgba(99, 102, 241, 0.9)"><span class="stage-name">Total Leads (100%)</span></div>
-                  <div class="funnel-stage" style="width: 80%; background: rgba(99, 102, 241, 0.75)"><span class="stage-name">Qualified Leads (80%)</span></div>
-                  <div class="funnel-stage" style="width: 55%; background: rgba(99, 102, 241, 0.6)"><span class="stage-name">Proposals Sent (55%)</span></div>
-                  <div class="funnel-stage" style="width: 32%; background: rgba(16, 185, 129, 0.95)"><span class="stage-name">Closed Won (32%)</span></div>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
+        <app-reports></app-reports>
       }
-
       @else if (resource === 'analytics') {
-        <div class="an-container">
-          <div class="an-header">
-            <h2 class="an-title">Campaign Analytics</h2>
-            <p class="an-subtitle">Monitor outbound metrics, click-through-rates, and delivery efficiency.</p>
-          </div>
-          @if (loadingCustom) {
-            <div class="an-loading">Loading campaign metrics...</div>
-          } @else {
-            <div class="an-grid">
-              <div class="an-card">
-                <h3 class="card-title">Campaign Delivery Rates</h3>
-                <div class="delivery-bar">
-                  <div class="d-info"><span>Successful Deliveries</span><span class="d-val">96.6%</span></div>
-                  <div class="d-track"><div class="d-fill" style="width: 96.6%; background: #10B981"></div></div>
-                </div>
-                <div class="delivery-bar">
-                  <div class="d-info"><span>Email Open Rate</span><span class="d-val">65.3%</span></div>
-                  <div class="d-track"><div class="d-fill" style="width: 65.3%; background: #3B82F6"></div></div>
-                </div>
-                <div class="delivery-bar">
-                  <div class="d-info"><span>Response Rate</span><span class="d-val">28.4%</span></div>
-                  <div class="d-track"><div class="d-fill" style="width: 28.4%; background: #F59E0B"></div></div>
-                </div>
-              </div>
-              <div class="an-card scroll-card">
-                <h3 class="card-title">Outbound Outreach Summary</h3>
-                <div class="c-list">
-                  @for (c of analyticsCampaigns; track c.id) {
-                    <div class="c-item">
-                      <div class="c-name-col"><span class="c-name">{{ c.campaignName }}</span><span class="c-subj">{{ c.subjectLine }}</span></div>
-                      <div class="c-metrics-col">
-                        <span class="c-badge" [attr.data-status]="c.status">{{ c.status }}</span>
-                        <span class="c-date">Created: {{ c.createdAt | date:'shortDate' }}</span>
-                      </div>
-                    </div>
-                  } @empty {
-                    <div class="an-empty">No active outreach campaigns</div>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </div>
+        <app-reports></app-reports>
       }
-
-      @else if (resource === 'settings') {
-        <div class="set-container">
-          <div class="set-header">
-            <h2 class="set-title">System Settings</h2>
-            <p class="set-subtitle">Manage user profiles, check active configurations, and view license details.</p>
-          </div>
-          <div class="set-grid">
-            <div class="set-card">
-              <h3 class="card-title">User Account Info</h3>
-              <div class="profile-summary">
-                <span class="prof-avatar">{{ getCurrentUser().name ? getCurrentUser().name.charAt(0).toUpperCase() : 'U' }}</span>
-                <div class="prof-info">
-                  <span class="prof-name">{{ getCurrentUser().name || 'Unknown User' }}</span>
-                  <span class="prof-role">{{ getCurrentUser().role || 'USER' }}</span>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Email Address</label>
-                <input type="text" class="form-input" [value]="getCurrentUser().email || ''" disabled />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Default Owner Handle</label>
-                <input type="text" class="form-input" [value]="(getCurrentUser().name || 'user').toLowerCase()" disabled />
-              </div>
-            </div>
-            <div class="set-card">
-              <h3 class="card-title">Active License Subscription</h3>
-              <p class="license-note">These subscription parameters are established at the corporate billing level and cannot be modified locally.</p>
-              @if (loadingCustom) {
-                <div class="license-loading">Loading license status...</div>
-              } @else {
-                <div class="form-group">
-                  <label class="form-label">License Start Date</label>
-                  <input type="text" class="form-input read-only-field" [value]="settingsLicenseInfo?.startDate | date:'longDate'" readonly />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">License End Date</label>
-                  <input type="text" class="form-input read-only-field" [value]="settingsLicenseInfo?.endDate | date:'longDate'" readonly />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Grace Period (Days)</label>
-                  <input type="text" class="form-input read-only-field" [value]="settingsLicenseInfo?.gracePeriod" readonly />
-                </div>
-              }
-            </div>
-          </div>
-        </div>
+      @else if (resource === 'report-builder') {
+        <app-report-builder></app-report-builder>
       }
-
+      @else if (resource === 'customization') {
+        <app-customization></app-customization>
+      }
       @else if (resource === 'emails') {
-        <div class="em-container">
-          <div class="em-header">
-            <h2 class="em-title">Email Center</h2>
-            <p class="em-subtitle">Sync corporate Gmail outreach, read responses, and manage template campaigns.</p>
-          </div>
-          <div class="em-grid">
-            <div class="em-card em-list-card">
-              <div class="em-list-header">
-                <h3 class="card-title" style="margin: 0">Inbox</h3>
-                <button class="em-btn em-btn-primary" (click)="composeEmail()">Compose</button>
-              </div>
-              <div class="em-list-container">
-                @for (m of emails; track m.id) {
-                  <div class="em-item" [class.selected]="selectedEmail?.id === m.id" (click)="selectEmail(m)">
-                    <div class="em-item-top"><span class="em-from">{{ m.sender }}</span><span class="em-date">{{ m.date | date:'shortTime' }}</span></div>
-                    <span class="em-subj">{{ m.subject }}</span>
-                    <p class="em-snippet">{{ m.snippet }}</p>
-                  </div>
-                } @empty {
-                  <div class="em-empty">No emails found</div>
-                }
-              </div>
-            </div>
-            <div class="em-card em-detail-card">
-              @if (selectedEmail) {
-                <div class="em-detail-header">
-                  <h3 class="em-detail-subject">{{ selectedEmail.subject }}</h3>
-                  <div class="em-detail-meta">
-                    <div class="em-sender-row">
-                      <span class="em-sender-avatar">{{ selectedEmail.sender[0] }}</span>
-                      <div class="em-sender-info">
-                        <span class="em-detail-from">{{ selectedEmail.sender }}</span>
-                        <span class="em-detail-to">to me</span>
-                      </div>
-                    </div>
-                    <span class="em-detail-date">{{ selectedEmail.date | date:'medium' }}</span>
-                  </div>
-                </div>
-                <div class="em-detail-body"><p>{{ selectedEmail.body }}</p></div>
-              } @else {
-                <div class="em-detail-placeholder">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                  <p>Select an email to view its details</p>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
+        <app-email-workspace></app-email-workspace>
+      }
+      @else if (resource === 'inventory') {
+        <app-inventory></app-inventory>
+      }
+      @else if (resource === 'dashboard-builder') {
+        <app-dashboard-builder></app-dashboard-builder>
+      }
+      @else if (resource === 'user-settings') {
+        <app-user-settings></app-user-settings>
       }
 
       @else if (page && !error) {
         <div class="lp-workspace-wrapper" style="position: relative; padding-bottom: 80px;">
           @if (viewMode === 'table') {
             @if (resource === 'quotes' || resource === 'invoices') {
-              <div class="custom-table-container">
+              <!-- Page Header & Toggle Tabs -->
+              <div class="o-page-header" style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px;">
+                <div class="o-page-title-row">
+                  <h2 class="o-page-title" style="font-size: 1.4rem; font-weight: 700; color: var(--crm-text-1); margin: 0;">{{ page?.title }}</h2>
+                </div>
+                
+                @if (page?.toggleButton?.elements?.length) {
+                  <o-toggle-tabs
+                    [tabs]="page!.toggleButton!.elements"
+                    [activeTab]="activeStatusTab()"
+                    (tabChange)="activeStatusTab.set($event)">
+                  </o-toggle-tabs>
+                }
+              </div>
+
+              <o-table-tools
+                [config]="{ add: true, edit: true, refresh: true, clear: true, export: true, print: true }"
+                [selectedCount]="selectedBulkRows.length"
+                (toolAction)="onCustomTableToolAction($event)"
+              ></o-table-tools>
+
+              <div class="custom-table-container" style="margin-top: 12px;">
                 <table class="custom-data-table">
                   <thead>
                     <tr>
-                      <th class="chk-col"></th>
+                      <th class="chk-col">
+                        <input type="checkbox" 
+                               [checked]="filteredTableData.length > 0 && selectedBulkRows.length === filteredTableData.length"
+                               (change)="toggleSelectAllQuotesInvoices()" 
+                               class="row-chk" />
+                      </th>
                       <th *ngFor="let col of page?.tableList || []" style="position: relative;">
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
                           <span>{{ col.label }}</span>
@@ -422,9 +180,9 @@ import { catchError } from 'rxjs/operators';
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let row of filteredTableData" [class.selected]="selectedRow?.id === row.id">
+                    <tr *ngFor="let row of filteredTableData" [class.selected]="isQuoteInvoiceRowSelected(row)">
                       <td class="chk-col">
-                        <input type="checkbox" [checked]="selectedRow?.id === row.id" (change)="toggleSelectRow(row)" class="row-chk" />
+                        <input type="checkbox" [checked]="isQuoteInvoiceRowSelected(row)" (change)="toggleSelectQuoteInvoiceRow(row)" class="row-chk" />
                       </td>
                       <td *ngFor="let col of page?.tableList || []">
                         @if (col.pipe === 'date') {
@@ -678,9 +436,9 @@ import { catchError } from 'rxjs/operators';
 
     /* Custom Table Styles for Quotes & Invoices */
     .custom-table-container { width: 100%; overflow-x: auto; background: var(--crm-card); border: 1px solid var(--crm-border); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-    .custom-data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+    .custom-data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: var(--crm-table-font-size, 13.5px); }
     .custom-data-table th, .custom-data-table td { padding: 12px 16px; border-bottom: 1px solid var(--crm-border); color: var(--crm-text-2); }
-    .custom-data-table th { background: var(--crm-hover); font-weight: 600; color: var(--crm-text-1); }
+    .custom-data-table th { background: var(--crm-hover); font-weight: 600; color: var(--crm-text-1); font-size: calc(var(--crm-table-font-size, 13.5px) - 1.5px); }
     .custom-data-table tr:hover td { background: var(--crm-hover); }
     .custom-data-table tr.selected td { background: var(--crm-primary-soft); }
     .chk-col { width: 40px; text-align: center; }
@@ -739,15 +497,6 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
   bulkStatusValue = '';
   salesUsers: any[] = [];
 
-  // Calendar Scheduler / Sync states
-  calendarSubMode: 'calendar' | 'scheduler' = 'calendar';
-  schedulerDate = '';
-  schedulerDuration = 30;
-  schedulerSlots: any[] = [];
-  selectedSlot: any = null;
-  slotBookingTitle = '';
-  loadingSlots = false;
-
   columnFilters: Record<string, string> = {};
   tempFilters: Record<string, string> = {};
   activeFilterField: string | null = null;
@@ -759,62 +508,8 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
   viewMode: 'table' | 'kanban' = 'table';
 
   // Custom resource states
+  activeStatusTab = signal('ALL');
   loadingCustom = false;
-  calendarCurrentDate = new Date();
-  calendarDays: CalendarDay[] = [];
-  selectedCalendarDay: CalendarDay | null = null;
-  reportsPipelineData: any[] = [];
-  analyticsCampaigns: any[] = [];
-  settingsLicenseInfo: any = null;
-  selectedEmail: any = null;
-
-  emails = [
-    {
-      id: 1,
-      sender: 'Google Workspace Team',
-      subject: 'Welcome to Orque Workspace!',
-      date: new Date(),
-      snippet: 'Welcome to your new enterprise workspace inbox. Get started by setting up...',
-      body: `Hello System Admin,
-
-      Welcome to your new enterprise workspace inbox. Get started by setting up your team profiles, security configurations, and custom integrations.
-
-      If you have any questions, feel free to contact corporate support.
-
-      Regards,
-      Google Workspace Team`
-    },
-    {
-      id: 2,
-      sender: 'Alice Vance (Acme Corp)',
-      subject: 'Re: Quotation Proposal Request',
-      date: new Date(Date.now() - 3600000),
-      snippet: 'Hi, we reviewed the quotation you sent yesterday. The pricing looks aligned with...',
-      body: `Hi Admin,
-
-      We reviewed the quotation you sent yesterday. The pricing looks aligned with our Q3 budgets. We will schedule a team follow-up call tomorrow at 10 AM to finalize the terms.
-
-      Please send across the MSA draft if ready.
-
-      Best regards,
-      Alice Vance
-      Acme Corp`
-    },
-    {
-      id: 3,
-      sender: 'Rob Stark (Winterfell LLC)',
-      subject: 'Inquiry: Enterprise License Grace Period',
-      date: new Date(Date.now() - 7200000),
-      snippet: 'Hello, could you clarify what happens to our data access when the grace period...',
-      body: `Hello,
-
-      Could you clarify what happens to our data access when the grace period expires? We are working with procurement to sign the contract extension, but might need a few extra days.
-
-      Thanks,
-      Rob Stark
-      Winterfell LLC`
-    }
-  ];
 
   private _loadedResource: string | null = null;
   private _subs = new Subscription();
@@ -825,6 +520,14 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor() {}
 
+  private resetState(): void {
+    this.activeStatusTab.set('ALL');
+    this.selectedRow = null;
+    this.columnFilters = {};
+    this.tempFilters = {};
+    this.selectedBulkRows = [];
+  }
+
   ngOnInit(): void {
     const routeResource = this.route.snapshot.data['resource'];
     if (routeResource) {
@@ -833,6 +536,7 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     if (this.resource && this._loadedResource !== this.resource) {
       this._loadedResource = this.resource;
       this.viewMode = 'table';
+      this.resetState();
       this.loadPage();
     }
   }
@@ -841,6 +545,7 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     if (changes['resource'] && this.resource && this._loadedResource !== this.resource) {
       this._loadedResource = this.resource;
       this.viewMode = 'table';
+      this.resetState();
       this.loadPage();
     }
   }
@@ -854,7 +559,10 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   isCustomResource(): boolean {
-    return ['calendar', 'reports', 'analytics', 'settings', 'emails'].includes(this.resource);
+    return [
+      'calendar', 'reports', 'analytics', 'report-builder', 'customization', 
+      'emails', 'inventory', 'dashboard-builder', 'user-settings'
+    ].includes(this.resource);
   }
 
   getCurrentUser(): any {
@@ -875,19 +583,23 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     this.data = [];
     this.cdr.markForCheck();
 
-    if (this.isCustomResource()) {
-      this.loadCustomResource();
-      return;
-    }
-
     const sub = this.store.getPageConfig(this.resource).subscribe({
       next: (config: PageConfig) => {
         this.page = config;
+        // Initialise the status tab to the JSON-defined default (the element with isDefault:true, or first element)
+        if (config.toggleButton?.elements?.length) {
+          const def = config.toggleButton.elements.find((e: any) => e.isDefault) ?? config.toggleButton.elements[0];
+          this.activeStatusTab.set(def.value ?? 'All');
+        }
         this.cdr.markForCheck();
-        this.loadData(config.api);
+        if (this.isCustomResource()) {
+          this.loadCustomResource();
+        } else {
+          this.loadData(config.api);
+        }
       },
       error: (err) => {
-        this.error = `Failed to load page: ${err.message}`;
+        this.error = `Failed to load page config: ${err.message}`;
         this.loading = false;
         this.cdr.markForCheck();
       }
@@ -916,198 +628,10 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     this._subs.add(sub);
   }
 
-  // Loaders for custom consolidated views
   private loadCustomResource(): void {
-    this.loadingCustom = true;
+    this.loading = false;
+    this.loadingCustom = false;
     this.cdr.markForCheck();
-
-    if (this.resource === 'calendar') {
-      forkJoin({
-        tasks: this.store.getList('/api/v1/tasks').pipe(catchError(() => of([]))),
-        acts:  this.store.getList('/api/v1/activities').pipe(catchError(() => of([])))
-      }).subscribe({
-        next: ({ tasks, acts }) => {
-          const actItems = acts.map((a: any) => ({
-            title: a.subject || a.type || 'Activity',
-            dueDate: a.dueDate,
-            status: a.status || 'Pending',
-            relatedType: a.relatedType || 'Activity'
-          }));
-          this.buildCalendar([...tasks, ...actItems]);
-          this.loadingCustom = false;
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.buildCalendar([]);
-          this.loadingCustom = false;
-          this.cdr.markForCheck();
-        }
-      });
-    } else if (this.resource === 'reports') {
-      this.store.getList('/api/v1/deals').subscribe({
-        next: (deals) => {
-          const stages = [
-            { label: 'Prospecting', value: 0, percentage: 0, color: '#9CA3AF' },
-            { label: 'Qualification', value: 0, percentage: 0, color: '#3B82F6' },
-            { label: 'Proposal', value: 0, percentage: 0, color: '#F59E0B' },
-            { label: 'Negotiation', value: 0, percentage: 0, color: '#F97316' },
-            { label: 'Closed Won', value: 0, percentage: 0, color: '#10B981' }
-          ];
-          let maxAmount = 1;
-          deals.forEach(deal => {
-            const st = stages.find(s => deal.stage?.toLowerCase() === s.label.toLowerCase());
-            if (st) st.value += deal.amount || 0;
-          });
-          stages.forEach(s => { if (s.value > maxAmount) maxAmount = s.value; });
-          stages.forEach(s => { s.percentage = Math.max(10, Math.round((s.value / maxAmount) * 100)); });
-          this.reportsPipelineData = stages;
-          this.loadingCustom = false;
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.reportsPipelineData = [
-            { label: 'Prospecting', value: 120000, percentage: 30, color: '#9CA3AF' },
-            { label: 'Qualification', value: 250000, percentage: 60, color: '#3B82F6' },
-            { label: 'Proposal', value: 450000, percentage: 100, color: '#F59E0B' },
-            { label: 'Negotiation', value: 180000, percentage: 40, color: '#F97316' },
-            { label: 'Closed Won', value: 340000, percentage: 80, color: '#10B981' }
-          ];
-          this.loadingCustom = false;
-          this.cdr.markForCheck();
-        }
-      });
-    } else if (this.resource === 'analytics') {
-      this.store.getList('/api/v1/campaigns').subscribe({
-        next: (data) => {
-          this.analyticsCampaigns = data ?? [];
-          this.loadingCustom = false;
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.analyticsCampaigns = [];
-          this.loadingCustom = false;
-          this.cdr.markForCheck();
-        }
-      });
-    } else if (this.resource === 'settings') {
-      this.store.getList('/api/v1/settings/license').subscribe({
-        next: (res: any) => {
-          this.settingsLicenseInfo = res;
-          this.loadingCustom = false;
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.settingsLicenseInfo = { startDate: '2026-01-01', endDate: '2026-12-31', gracePeriod: '30 days' };
-          this.loadingCustom = false;
-          this.cdr.markForCheck();
-        }
-      });
-    } else if (this.resource === 'emails') {
-      this.selectedEmail = this.emails[0];
-      this.loadingCustom = false;
-      this.cdr.markForCheck();
-    }
-  }
-
-  // Calendar logic
-  buildCalendar(tasks: any[]): void {
-    const baseDate = this.calendarCurrentDate;
-    const year = baseDate.getFullYear();
-    const month = baseDate.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const startOffset = firstDay.getDay();
-    const lastDay = new Date(year, month + 1, 0);
-    const totalDays = lastDay.getDate();
-    const gridDays: CalendarDay[] = [];
-
-    const prevMonthLast = new Date(year, month, 0).getDate();
-    for (let i = startOffset - 1; i >= 0; i--) {
-      const d = new Date(year, month - 1, prevMonthLast - i);
-      gridDays.push({ date: d, isCurrentMonth: false, events: this.getCalendarEvents(d, tasks) });
-    }
-    for (let i = 1; i <= totalDays; i++) {
-      const d = new Date(year, month, i);
-      gridDays.push({ date: d, isCurrentMonth: true, events: this.getCalendarEvents(d, tasks) });
-    }
-    const cells = gridDays.length <= 35 ? 35 : 42;
-    const nextOffset = cells - gridDays.length;
-    for (let i = 1; i <= nextOffset; i++) {
-      const d = new Date(year, month + 1, i);
-      gridDays.push({ date: d, isCurrentMonth: false, events: this.getCalendarEvents(d, tasks) });
-    }
-    this.calendarDays = gridDays;
-    if (!this.selectedCalendarDay) {
-      const today = new Date();
-      this.selectedCalendarDay = this.calendarDays.find(day => 
-        day.date.getDate() === today.getDate() && day.date.getMonth() === today.getMonth() && day.date.getFullYear() === today.getFullYear()
-      ) || null;
-    }
-  }
-
-  getCalendarEvents(d: Date, tasks: any[]): CalendarDayEvent[] {
-    return tasks
-      .filter(t => {
-        if (!t.dueDate) return false;
-        const td = new Date(t.dueDate);
-        return td.getDate() === d.getDate() && td.getMonth() === d.getMonth() && td.getFullYear() === d.getFullYear();
-      })
-      .map(t => ({ label: t.title, status: t.status || 'PENDING' }));
-  }
-
-  onCalendarMonthChange(newDate: Date): void {
-    this.calendarCurrentDate = newDate;
-    this.selectedCalendarDay = null;
-    this.loadCustomResource();
-  }
-
-  onCalendarDayClick(day: CalendarDay): void {
-    this.selectedCalendarDay = day;
-  }
-
-  newEventTitle = '';
-  newEventDesc = '';
-  newEventAssign = 'Admin';
-
-  createCalendarEvent(): void {
-    if (!this.newEventTitle.trim() || !this.selectedCalendarDay) {
-      this.toast.addWarning('Validation', 'Event Title is required.');
-      return;
-    }
-
-    const year = this.selectedCalendarDay.date.getFullYear();
-    const month = String(this.selectedCalendarDay.date.getMonth() + 1).padStart(2, '0');
-    const day = String(this.selectedCalendarDay.date.getDate()).padStart(2, '0');
-    const dueDateStr = `${year}-${month}-${day}`;
-
-    const newTask = {
-      title: this.newEventTitle,
-      description: this.newEventDesc,
-      dueDate: dueDateStr,
-      assignedTo: this.newEventAssign,
-      status: 'PENDING',
-      priority: 'MEDIUM'
-    };
-
-    this.store.post('/api/v1/tasks', newTask).subscribe({
-      next: () => {
-        this.toast.addSuccess('Success', 'Event created successfully.');
-        this.newEventTitle = '';
-        this.newEventDesc = '';
-        this.loadCustomResource();
-      },
-      error: () => {
-        this.toast.addError('Error', 'Failed to create event.');
-      }
-    });
-  }
-
-  // Email logic
-  selectEmail(m: any): void {
-    this.selectedEmail = m;
-  }
-
-  composeEmail(): void {
-    this.toast.addInfo('Compose', 'Outbound corporate composer draft initiated.');
   }
 
   handleAction(event: PageAction): void {
@@ -1465,8 +989,47 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  onCustomTableToolAction(action: string): void {
+    if (action === 'add') {
+      this.handleAction({ action: 'create', row: null });
+    } else if (action === 'edit') {
+      const single = this.selectedBulkRows.length === 1 ? this.selectedBulkRows[0] : this.selectedRow;
+      if (single) {
+        this.handleAction({ action: 'edit', row: single });
+      } else {
+        this.toast.addError('Selection Required', 'Please select exactly one row to edit.');
+      }
+    } else if (action === 'refresh') {
+      this.loadPage();
+    } else if (action === 'clear') {
+      this.selectedRow = null;
+      this.selectedBulkRows = [];
+      this.cdr.markForCheck();
+    } else if (action === 'export') {
+      this.exportExcel();
+    } else if (action === 'print') {
+      if (this.selectedBulkRows.length > 0) {
+        this.printQuoteInvoiceRows(
+          this.page?.title || this.resource,
+          this.page?.tableList || [],
+          this.selectedBulkRows
+        );
+      }
+    }
+  }
+
   get filteredTableData(): any[] {
     let rows = [...(this.data || [])];
+    
+    if (this.resource === 'quotes' || this.resource === 'invoices') {
+      const activeTab = this.activeStatusTab();
+      // 'All' / 'ALL' / '' all mean show everything
+      if (activeTab && activeTab.toLowerCase() !== 'all') {
+        rows = rows.filter(r =>
+          (r.status ?? '').toLowerCase() === activeTab.toLowerCase()
+        );
+      }
+    }
     
     for (const field of Object.keys(this.columnFilters)) {
       const query = this.columnFilters[field]?.trim().toLowerCase();
@@ -1643,84 +1206,81 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  syncCalendarProvider(provider: 'google' | 'outlook') {
-    const token = localStorage.getItem('accessToken') ?? '';
-    const hdrs = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `${this.base.replace('/emails', '/calendar-events')}/sync/${provider}`;
-    this.http.post<any>(url, {}, { headers: hdrs })
-      .subscribe({
-        next: (res) => {
-          alert(`Successfully synced ${res.syncedCount} events from ${res.provider}!`);
-          this.loadCustomResource();
-        },
-        error: () => alert(`Failed to sync calendar with ${provider}.`)
-      });
+  // ── Quotes / Invoices row-selection helpers ──────────────────────────────
+
+  isQuoteInvoiceRowSelected(row: any): boolean {
+    return this.selectedBulkRows.some(r => r.id === row.id);
   }
 
-  loadAvailableSlots() {
-    if (!this.schedulerDate) return;
-    this.loadingSlots = true;
-    this.selectedSlot = null;
-    this.cdr.detectChanges();
-
-    const token = localStorage.getItem('accessToken') ?? '';
-    const hdrs = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `${this.base.replace('/emails', '/calendar-events')}/slots?date=${this.schedulerDate}&durationMinutes=${this.schedulerDuration}`;
-    
-    this.http.get<any[]>(url, { headers: hdrs })
-      .subscribe({
-        next: (slots) => {
-          this.schedulerSlots = slots;
-          this.loadingSlots = false;
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.schedulerSlots = [];
-          this.loadingSlots = false;
-          this.cdr.detectChanges();
-        }
-      });
+  toggleSelectQuoteInvoiceRow(row: any): void {
+    const idx = this.selectedBulkRows.findIndex(r => r.id === row.id);
+    if (idx >= 0) {
+      this.selectedBulkRows = this.selectedBulkRows.filter((_, i) => i !== idx);
+    } else {
+      this.selectedBulkRows = [...this.selectedBulkRows, row];
+    }
+    this.cdr.markForCheck();
   }
 
-  selectSlotToBook(slot: any) {
-    this.selectedSlot = slot;
-    this.slotBookingTitle = '';
-    this.cdr.detectChanges();
+  toggleSelectAllQuotesInvoices(): void {
+    const all = this.filteredTableData;
+    if (this.selectedBulkRows.length === all.length && all.length > 0) {
+      this.selectedBulkRows = [];
+    } else {
+      this.selectedBulkRows = [...all];
+    }
+    this.cdr.markForCheck();
   }
 
-  bookMeetingSlot() {
-    if (!this.slotBookingTitle) return alert('Enter title.');
-    
-    const token = localStorage.getItem('accessToken') ?? '';
-    const hdrs = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    
-    const startStr = `${this.schedulerDate}T${this.selectedSlot.time}`;
-    const startDt = new Date(startStr);
-    const endDt = new Date(startDt.getTime() + this.schedulerDuration * 60 * 1000);
-    
-    const offset = startDt.getTimezoneOffset();
-    const localStart = new Date(startDt.getTime() - offset * 60000).toISOString().slice(0, 19);
-    const localEnd = new Date(endDt.getTime() - offset * 60000).toISOString().slice(0, 19);
+  printQuoteInvoiceRows(pageTitle: string, columns: any[], rows: any[]): void {
+    const pw = window.open('', '_blank');
+    if (!pw) { this.toast.addError('Blocked', 'Pop-up blocker is preventing the print view.'); return; }
 
-    const payload = {
-      title: this.slotBookingTitle,
-      description: `Booked via Meeting Scheduler Slot Booker`,
-      startDateTime: localStart,
-      endDateTime: localEnd,
-      timeZone: 'Asia/Kolkata',
-      colorCategory: '#10B981'
+    const esc = (v: any) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    const thead = '<tr>' + columns.map(c => `<th>${esc(c.label)}</th>`).join('') + '</tr>';
+    const tbody = rows.map(row =>
+      '<tr>' + columns.map(col => {
+        let val = row[col.name] ?? '—';
+        if (col.pipe === 'date' && val !== '—') val = new Date(val).toLocaleDateString();
+        return `<td>${esc(val)}</td>`;
+      }).join('') + '</tr>'
+    ).join('');
+
+    pw.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Print — ${esc(pageTitle)}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 32px; color: #1e293b; }
+    h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
+    p.meta { font-size: 0.78rem; color: #64748b; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { background: #1e293b; color: #fff; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #374151; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    @media print { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <h1>${esc(pageTitle)}</h1>
+  <p class="meta">${rows.length} record${rows.length !== 1 ? 's' : ''} selected &nbsp;·&nbsp; Printed on ${new Date().toLocaleString()}</p>
+  <table>
+    <thead>${thead}</thead>
+    <tbody>${tbody}</tbody>
+  </table>
+  <script>
+    window.onload = function() {
+      window.print();
+      window.onafterprint = function() { window.close(); };
+      setTimeout(function() { window.close(); }, 1000);
     };
-
-    this.http.post<any>(`${this.base.replace('/emails', '/calendar-events')}`, payload, { headers: hdrs })
-      .subscribe({
-        next: () => {
-          alert('Meeting booked successfully!');
-          this.selectedSlot = null;
-          this.slotBookingTitle = '';
-          this.loadAvailableSlots();
-          this.loadCustomResource();
-        },
-        error: () => alert('Failed to book meeting slot.')
-      });
+  </script>
+</body>
+</html>`);
+    pw.document.close();
   }
 }

@@ -1,0 +1,7 @@
+{
+  "name": "Calendar",
+  "title": "Calendar Workspace",
+  "store": "CalendarStore",
+  "api": "/api/v1/calendar",
+  "tableTool": { "add": false, "edit": false, "refresh": true, "export": false, "print": true }
+}

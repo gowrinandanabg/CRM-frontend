@@ -1,0 +1,7 @@
+{
+  "name": "ReportBuilder",
+  "title": "Report Builder",
+  "store": "ReportStore",
+  "api": "/api/v1/reports",
+  "tableTool": { "add": false, "edit": false, "refresh": true, "export": false, "print": false }
+}

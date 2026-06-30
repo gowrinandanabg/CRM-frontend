@@ -1,0 +1,7 @@
+{
+  "name": "DashboardBuilder",
+  "title": "Dashboard Builder",
+  "store": "DashboardStore",
+  "api": "/api/v1/dashboard",
+  "tableTool": { "add": false, "edit": false, "refresh": true, "export": false, "print": false }
+}

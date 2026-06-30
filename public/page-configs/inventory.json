@@ -1,0 +1,7 @@
+{
+  "name": "Inventory",
+  "title": "Inventory Control",
+  "store": "InventoryStore",
+  "api": "/api/v1/inventory",
+  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "print": true }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Emails",
+  "title": "Email Inbox",
+  "store": "EmailStore",
+  "api": "/api/v1/emails",
+  "tableTool": { "add": true, "edit": false, "refresh": true, "export": false, "print": true }
+}

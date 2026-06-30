@@ -1,0 +1,7 @@
+{
+  "name": "UserSettings",
+  "title": "User Settings",
+  "store": "SettingsStore",
+  "api": "/api/v1/settings",
+  "tableTool": { "add": false, "edit": false, "refresh": true, "export": false, "print": false }
+}

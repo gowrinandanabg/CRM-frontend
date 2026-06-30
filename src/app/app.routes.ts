@@ -44,25 +44,25 @@ export const routes: Routes = [
       {
         path: 'leads/:id',
         loadComponent: () =>
-          import('./features/record-detail/record-detail').then(m => m.RecordDetailComponent),
+          import('orque-ui').then(m => m.RecordDetailComponent),
         data: { resource: 'leads' }
       },
       {
         path: 'deals/:id',
         loadComponent: () =>
-          import('./features/record-detail/record-detail').then(m => m.RecordDetailComponent),
+          import('orque-ui').then(m => m.RecordDetailComponent),
         data: { resource: 'deals' }
       },
       {
         path: 'contacts/:id',
         loadComponent: () =>
-          import('./features/record-detail/record-detail').then(m => m.RecordDetailComponent),
+          import('orque-ui').then(m => m.RecordDetailComponent),
         data: { resource: 'contacts' }
       },
       {
         path: 'accounts/:id',
         loadComponent: () =>
-          import('./features/record-detail/record-detail').then(m => m.RecordDetailComponent),
+          import('orque-ui').then(m => m.RecordDetailComponent),
         data: { resource: 'accounts' }
       },
       {
@@ -92,7 +92,8 @@ export const routes: Routes = [
       {
         path: 'emails',
         loadComponent: () =>
-          import('./features/email-workspace/email-workspace').then(m => m.EmailWorkspaceComponent)
+          import('./features/list-page/list-page').then(m => m.ListPageComponent),
+        data: { resource: 'emails' }
       },
       {
         path: 'products',
@@ -115,37 +116,44 @@ export const routes: Routes = [
       {
         path: 'reports',
         loadComponent: () =>
-          import('./features/reports/reports').then(m => m.ReportsComponent)
+          import('./features/list-page/list-page').then(m => m.ListPageComponent),
+        data: { resource: 'reports' }
       },
       {
         path: 'analytics',
         loadComponent: () =>
-          import('./features/reports/reports').then(m => m.ReportsComponent)
+          import('./features/list-page/list-page').then(m => m.ListPageComponent),
+        data: { resource: 'analytics' }
       },
       {
         path: 'report-builder',
         loadComponent: () =>
-          import('./features/report-builder/report-builder').then(m => m.ReportBuilderComponent)
+          import('./features/list-page/list-page').then(m => m.ListPageComponent),
+        data: { resource: 'report-builder' }
       },
       {
         path: 'customization',
         loadComponent: () =>
-          import('./features/customization/customization').then(m => m.CustomizationComponent)
+          import('./features/list-page/list-page').then(m => m.ListPageComponent),
+        data: { resource: 'customization' }
       },
       {
         path: 'inventory',
         loadComponent: () =>
-          import('./features/inventory/inventory').then(m => m.InventoryComponent)
+          import('./features/list-page/list-page').then(m => m.ListPageComponent),
+        data: { resource: 'inventory' }
       },
       {
         path: 'dashboard-builder',
         loadComponent: () =>
-          import('./features/dashboard-builder/dashboard-builder').then(m => m.DashboardBuilderComponent)
+          import('./features/list-page/list-page').then(m => m.ListPageComponent),
+        data: { resource: 'dashboard-builder' }
       },
       {
-        path: 'calendar',
+        path: 'settings',
         loadComponent: () =>
-          import('./features/calendar-workspace/calendar-workspace').then(m => m.CalendarWorkspaceComponent)
+          import('./features/list-page/list-page').then(m => m.ListPageComponent),
+        data: { resource: 'user-settings' }
       },
       {
         path: 'users',
@@ -158,12 +166,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/list-page/list-page').then(m => m.ListPageComponent),
         data: { resource: 'active-sessions' }
-      },
-      {
-        path: 'settings',
-        loadComponent: () =>
-          import('./features/user-settings/user-settings').then(m => m.UserSettingsComponent)
-      },
+      }
     ]
   },
 

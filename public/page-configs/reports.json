@@ -1,0 +1,7 @@
+{
+  "name": "Reports",
+  "title": "Reports & Metrics",
+  "store": "ReportStore",
+  "api": "/api/v1/reports",
+  "tableTool": { "add": false, "edit": false, "refresh": true, "export": true, "print": true }
+}
