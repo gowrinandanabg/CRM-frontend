@@ -77,6 +77,8 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
 
 
 
+  salesUsers = signal<{ username: string; fullName: string }[]>([]);
+
   private readonly _subs = new Subscription();
   private readonly base  = `http://${globalThis.location.hostname}:8085`;
 
@@ -88,6 +90,7 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.loadSalesUsers();
     this._subs.add(this.route.params.subscribe(params => {
       const resource = this.route.snapshot.data['resource'] as string;
       this.loadPage(resource, params['id'] as string);
@@ -95,6 +98,37 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() { this._subs.unsubscribe(); }
+
+  currentCrmUser(): { username: string; role: string } | null {
+    try {
+      const raw = globalThis.localStorage?.getItem('crm_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  isAdminUser(): boolean {
+    const user = this.currentCrmUser();
+    if (!user) return false;
+    const role = (user.role || '').toUpperCase();
+    return role === 'ADMIN' || role === 'SALES_ADMIN';
+  }
+
+  loadSalesUsers() {
+    if (this.isAdminUser()) {
+      this._subs.add(this.http.get<any[]>(`${this.base}/api/v1/users/sales`, { headers: this.hdrs() })
+        .pipe(catchError(() => of([])))
+        .subscribe(data => {
+          this.salesUsers.set(data.map(u => ({ username: u.username, fullName: u.fullName })));
+          this.cdr.markForCheck();
+        }));
+    }
+  }
+
+  isOwnershipField(fieldName: string): boolean {
+    return ['assignedTo', 'assignedOwner', 'owner'].includes(fieldName);
+  }
 
   private hdrs(): HttpHeaders {
     const token = localStorage.getItem('accessToken') ?? '';
@@ -221,6 +255,17 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
   openAddPanel(tab: RdTab) {
     this.addPanelTab = tab;
     this.addForm = { ...tab.addDefaults };
+
+    const currentUser = this.currentCrmUser();
+    if (currentUser?.username) {
+      const ownershipFields = ['assignedTo', 'assignedOwner', 'owner'];
+      tab.addFields?.forEach(f => {
+        if (ownershipFields.includes(f.name) && !this.addForm[f.name]) {
+          this.addForm[f.name] = currentUser.username;
+        }
+      });
+    }
+
     this.addError = null;
     this.addPanelOpen = true;
     this.cdr.markForCheck();

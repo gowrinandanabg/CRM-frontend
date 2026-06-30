@@ -314,18 +314,30 @@
       <ng-container *ngIf="addPanelTab?.addMethod !== 'auto'">
         <div *ngFor="let field of addPanelTab?.addFields" class="rd-form-row">
           <label class="rd-form-label">{{ field.label }}</label>
-          <select *ngIf="field.type === 'select'" class="rd-form-control" [(ngModel)]="addForm[field.name]">
-            <option value="">Select {{ field.label }}...</option>
-            <option *ngFor="let opt of field.options" [value]="opt.value">{{ opt.label }}</option>
-          </select>
-          <input *ngIf="field.type === 'input'" class="rd-form-control" type="text"
-            [(ngModel)]="addForm[field.name]" [placeholder]="field.label">
-          <input *ngIf="field.type === 'date'" class="rd-form-control" type="date"
-            [(ngModel)]="addForm[field.name]">
-          <input *ngIf="field.type === 'number'" class="rd-form-control" type="number"
-            [(ngModel)]="addForm[field.name]">
-          <textarea *ngIf="field.type === 'textarea'" class="rd-form-control rd-form-textarea"
-            [(ngModel)]="addForm[field.name]" [placeholder]="field.label" rows="3"></textarea>
+          
+          <ng-container *ngIf="isOwnershipField(field.name); else defaultFieldBlock">
+            <select *ngIf="isAdminUser()" class="rd-form-control" [(ngModel)]="addForm[field.name]">
+              <option value="">&#8212; Select Owner &#8212;</option>
+              <option *ngFor="let u of salesUsers()" [value]="u.username">{{ u.fullName }} ({{ u.username }})</option>
+            </select>
+            <input *ngIf="!isAdminUser()" class="rd-form-control" type="text"
+              [ngModel]="addForm[field.name]" [disabled]="true">
+          </ng-container>
+
+          <ng-template #defaultFieldBlock>
+            <select *ngIf="field.type === 'select'" class="rd-form-control" [(ngModel)]="addForm[field.name]">
+              <option value="">Select {{ field.label }}...</option>
+              <option *ngFor="let opt of field.options" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+            <input *ngIf="field.type === 'input'" class="rd-form-control" type="text"
+              [(ngModel)]="addForm[field.name]" [placeholder]="field.label">
+            <input *ngIf="field.type === 'date'" class="rd-form-control" type="date"
+              [(ngModel)]="addForm[field.name]">
+            <input *ngIf="field.type === 'number'" class="rd-form-control" type="number"
+              [(ngModel)]="addForm[field.name]">
+            <textarea *ngIf="field.type === 'textarea'" class="rd-form-control rd-form-textarea"
+              [(ngModel)]="addForm[field.name]" [placeholder]="field.label" rows="3"></textarea>
+          </ng-template>
         </div>
       </ng-container>
 
