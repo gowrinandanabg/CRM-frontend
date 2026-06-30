@@ -121,7 +121,7 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
         .pipe(catchError(() => of([])))
         .subscribe(data => {
           this.salesUsers.set(data.map(u => ({ username: u.username, fullName: u.fullName })));
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         }));
     }
   }
@@ -141,7 +141,7 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
     this.config = null;
     this.record = null;
     this.tabData.set({});
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     this._subs.add(forkJoin({
       cfg: this.http.get<DetailConfig>(`/page-configs/${resource}-detail.json`),
@@ -173,14 +173,30 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
         if (cfg?.tabs?.length) {
           this.selectTab(cfg.tabs[0]);
         }
-        this.cdr.markForCheck();
+        
+        // Fetch all other related lists to populate counts in tab headers
+        this.fetchAllTabCounts(id);
+
+        this.cdr.detectChanges();
       },
       error: err => {
         this.pageError = (err?.error?.message as string | undefined) ?? 'Failed to load record.';
         this.loading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     }));
+  }
+
+  private fetchAllTabCounts(id: string) {
+    if (!this.config?.tabs) return;
+    this.loadNotes();
+    this.loadAttachments();
+    this.loadTimeline();
+    this.config.tabs.forEach(tab => {
+      if (tab.type === 'related-list' && tab.key !== 'notes' && tab.key !== 'attachments' && tab.key !== 'timeline') {
+        this.fetchTab(tab, id);
+      }
+    });
   }
 
   selectTab(tab: RdTab) {
@@ -196,7 +212,7 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
     } else if (tab.type === 'related-list' && !this.tabData()[tab.key]) {
       this.fetchTab(tab, id);
     }
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   private fetchTab(tab: RdTab, id: string) {
@@ -244,7 +260,7 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
       next: updated => {
         this.record = updated;
         this.showSuccess('Done.');
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       },
       error: err => this.showErr((err?.error?.message as string | undefined) ?? 'Action failed.')
     }));
@@ -268,7 +284,7 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
 
     this.addError = null;
     this.addPanelOpen = true;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   closeAddPanel() {
@@ -276,7 +292,7 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
     this.addPanelTab = null;
     this.addForm = {};
     this.addError = null;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   submitAddForm() {
@@ -389,13 +405,13 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.params['id'] as string;
     const resource = this.route.snapshot.data['resource'] as string;
     this.notesLoading = true;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
     this.http.get<any[]>(`${this.base}/api/v1/notes/${resource}/${id}`, { headers: this.hdrs() })
       .pipe(catchError(() => of([])))
       .subscribe(data => {
         this.notes.set(data);
         this.notesLoading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       });
   }
 
@@ -453,13 +469,13 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.params['id'] as string;
     const resource = this.route.snapshot.data['resource'] as string;
     this.attachmentsLoading = true;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
     this.http.get<any[]>(`${this.base}/api/v1/attachments/${resource}/${id}`, { headers: this.hdrs() })
       .pipe(catchError(() => of([])))
       .subscribe(data => {
         this.attachments.set(data);
         this.attachmentsLoading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       });
   }
 
@@ -472,7 +488,7 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
     const files = event.target.files;
     if (files && files.length > 0) {
       this.selectedUploadFile = files[0];
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }
   }
 
@@ -524,13 +540,13 @@ export class RecordDetailComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.params['id'] as string;
     const resource = this.route.snapshot.data['resource'] as string;
     this.timelineLoading = true;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
     this.http.get<any[]>(`${this.base}/api/v1/timeline/${resource}/${id}`, { headers: this.hdrs() })
       .pipe(catchError(() => of([])))
       .subscribe(data => {
         this.timeline.set(data);
         this.timelineLoading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       });
   }
 
