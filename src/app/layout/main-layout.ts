@@ -135,10 +135,14 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     }
 
     this.searchLoading.set(true);
-    this.http.get<Record<string, any[]>>(`${this.base}/api/v1/search?q=${val}`, { headers: this.hdrs() })
+    // Use HTTP QUERY method (RFC 10008) — safe, idempotent, body-bearing search request
+    this.http.request<Record<string, any[]>>('QUERY', `${this.base}/api/v1/search`, {
+      body: { q: val },
+      headers: this.hdrs().set('Content-Type', 'application/json')
+    })
       .pipe(catchError(() => of({})))
       .subscribe(data => {
-        this.searchResults.set(data);
+        this.searchResults.set(data as Record<string, any[]>);
         this.showSearchResults.set(true);
         this.searchLoading.set(false);
       });
