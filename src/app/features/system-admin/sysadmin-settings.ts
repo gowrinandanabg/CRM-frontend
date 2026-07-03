@@ -367,7 +367,12 @@ export class SysadminSettingsComponent implements OnInit {
   };
 
   private hdrs(): HttpHeaders {
-    return new HttpHeaders({ Authorization: `Bearer ${this.auth.getAccessToken()}` });
+    const token = this.auth.getAccessToken();
+    const orgId = this.auth.getOrganizationId();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (orgId) headers['X-Organization-Id'] = orgId;
+    return new HttpHeaders(headers);
   }
 
   ngOnInit(): void {

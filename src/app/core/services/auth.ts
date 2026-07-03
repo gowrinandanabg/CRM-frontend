@@ -18,6 +18,7 @@ interface AuthResponse {
   role: string;
   licenseWarning?: string | null;
   tenantName?: string | null;
+  organizationId?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -48,7 +49,8 @@ export class AuthService {
       email: r.email,
       role: r.role,
       licenseWarning: r.licenseWarning ?? null,
-      tenantName: r.tenantName ?? null
+      tenantName: r.tenantName ?? null,
+      organizationId: r.organizationId ?? null
     }));
   }
 
@@ -64,6 +66,26 @@ export class AuthService {
 
   getAccessToken(): string | null {
     return localStorage.getItem(this.accessTokenKey);
+  }
+
+  getOrganizationId(): string | null {
+    const stored = localStorage.getItem(this.userKey);
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored).organizationId ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  getTenantName(): string | null {
+    const stored = localStorage.getItem(this.userKey);
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored).tenantName ?? null;
+    } catch {
+      return null;
+    }
   }
 
   isLoggedIn(): boolean {

@@ -1,6 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { AppConfigService } from './app-config.service';
+import { AuthService } from './auth';
 
 export interface DashboardSummaryResponse {
   totalContacts: number;
@@ -20,29 +22,26 @@ export interface SalesUserOption {
   displayName: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DashboardService {
   private readonly http = inject(HttpClient);
+  private readonly cfg = inject(AppConfigService);
+  private readonly auth = inject(AuthService);
 
-  private readonly base = `http://${globalThis.location.hostname}:8085/api/v1/reports`;
-
-  private hdrs(): HttpHeaders {
-    const token = localStorage.getItem('accessToken') ?? '';
-    return new HttpHeaders({ Authorization: `Bearer ${token}` });
+  private get base(): string {
+    return `${this.cfg.crmApiUrl}/api/v1/reports`;
   }
 
   getDashboardSummary(username?: string | null): Observable<DashboardSummaryResponse> {
-    const params = username ? `?username=${encodeURIComponent(username)}` : '';
-    return this.http.get<DashboardSummaryResponse>(`${this.base}/dashboard${params}`, {
-      headers: this.hdrs()
-    });
+    const orgId = this.auth.getOrganizationId();
+    const params = new URLSearchParams();
+    if (username) params.set('username', username);
+    if (orgId) params.set('organizationId', orgId);
+    const qs = params.toString();
+    return this.http.get<DashboardSummaryResponse>(`${this.base}/dashboard${qs ? '?' + qs : ''}`);
   }
 
   getSalesUsers(): Observable<SalesUserOption[]> {
-    return this.http.get<SalesUserOption[]>(`${this.base}/admin/users`, {
-      headers: this.hdrs()
-    });
+    return this.http.get<SalesUserOption[]>(`${this.base}/admin/users`);
   }
 }

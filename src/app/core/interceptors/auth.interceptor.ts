@@ -14,14 +14,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const token = authService.getAccessToken();
+  const orgId = authService.getOrganizationId();
   let nextReq = req;
 
   if (token) {
-    nextReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+    if (orgId) {
+      headers['X-Organization-Id'] = orgId;
+    }
+    nextReq = req.clone({ setHeaders: headers });
   }
 
   return next(nextReq).pipe(

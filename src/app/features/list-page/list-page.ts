@@ -33,6 +33,8 @@ import { KanbanComponent } from './kanban';
 import { SysadminSettingsComponent } from '../system-admin/sysadmin-settings';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { AppConfigService } from '../../core/services/app-config.service';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-list-page',
@@ -517,7 +519,9 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
 
   pdfDownloading = false;
   private readonly http = inject(HttpClient);
-  base = `http://${globalThis.location?.hostname || 'localhost'}:8085`;
+  private readonly cfg = inject(AppConfigService);
+  private readonly auth = inject(AuthService);
+  private get base(): string { return this.cfg.crmApiUrl; }
 
   // Bulk operations states
   selectedBulkRows: any[] = [];
@@ -907,10 +911,8 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     this.pdfDownloading = true;
     this.cdr.markForCheck();
 
-    const base = `http://${globalThis.location.hostname}:8085`;
-
     this._subs.add(
-      this.http.get(`${base}/api/v1/${type}/${rowId}/pdf`, {
+      this.http.get(`${this.base}/api/v1/${type}/${rowId}/pdf`, {
         headers: this.hdrs(),
         responseType: 'blob'
       }).subscribe({
@@ -949,21 +951,19 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     this.pdfDownloading = true;
     this.cdr.markForCheck();
 
-    const base = `http://${globalThis.location.hostname}:8085`;
-
     this._subs.add(
-      this.http.post<any>(`${base}/api/v1/quotes/${quoteId}/invoice`, {}, {
+      this.http.post<any>(`${this.base}/api/v1/quotes/${quoteId}/invoice`, {}, {
         headers: this.hdrs()
       }).subscribe({
         next: (invoice) => {
           this.toast.addSuccess('Success', `Invoice ${invoice.invoiceNumber} generated successfully!`);
           this.pdfDownloading = false;
-          
+
           this.selectedRow = null;
           this.loadPage();
 
           const filename = invoice.invoiceNumber || `invoice-${invoice.id}`;
-          this.http.get(`${base}/api/v1/invoices/${invoice.id}/pdf`, {
+          this.http.get(`${this.base}/api/v1/invoices/${invoice.id}/pdf`, {
             headers: this.hdrs(),
             responseType: 'blob'
           }).subscribe({
@@ -1120,9 +1120,6 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     const rows = this.selectedBulkRows.length > 0 ? this.selectedBulkRows : (this.selectedRow ? [this.selectedRow] : []);
     if (rows.length === 0 || this.pdfDownloading) return;
     this.pdfDownloading = true;
-    const token = localStorage.getItem('accessToken') ?? '';
-    const hdrs = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
     const downloadNext = (index: number) => {
       if (index >= rows.length) {
         this.pdfDownloading = false;
@@ -1133,9 +1130,8 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
       const row = rows[index];
       const rowId = row.id;
       const filename = String(row[type === 'invoices' ? 'invoiceNumber' : 'quoteNumber'] ?? `${type}-${rowId}`);
-      const apiBase = `http://${globalThis.location.hostname}:8085`;
-      this.http.get(`${apiBase}/api/v1/${type}/${rowId}/pdf`, {
-        headers: hdrs, responseType: 'blob'
+      this.http.get(`${this.base}/api/v1/${type}/${rowId}/pdf`, {
+        headers: this.hdrs(), responseType: 'blob'
       }).subscribe({
         next: (blob: Blob) => {
           const url = URL.createObjectURL(blob);
@@ -1241,9 +1237,7 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadSalesUsersForBulk() {
-    const token = localStorage.getItem('accessToken') ?? '';
-    const hdrs = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    this.http.get<any[]>(`${this.base}/api/v1/users/sales`, { headers: hdrs })
+    this.http.get<any[]>(`${this.base}/api/v1/users/sales`, { headers: this.hdrs() })
       .subscribe({
         next: data => {
           this.salesUsers = data.map(u => ({ username: u.username, fullName: u.fullName }));
@@ -1261,10 +1255,8 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
 
   bulkDeleteSelected() {
     if (!confirm(`Are you sure you want to delete these ${this.selectedBulkRows.length} records?`)) return;
-    const token = localStorage.getItem('accessToken') ?? '';
-    const hdrs = new HttpHeaders({ Authorization: `Bearer ${token}` });
     const ids = this.selectedBulkRows.map(r => r.id);
-    this.http.post<any>(`${this.base}/api/v1/bulk/delete?module=${this.resource}`, ids, { headers: hdrs })
+    this.http.post<any>(`${this.base}/api/v1/bulk/delete?module=${this.resource}`, ids, { headers: this.hdrs() })
       .subscribe({
         next: () => {
           alert('Bulk delete completed.');
@@ -1279,8 +1271,6 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   submitBulkAction() {
-    const token = localStorage.getItem('accessToken') ?? '';
-    const hdrs = new HttpHeaders({ Authorization: `Bearer ${token}` });
     const ids = this.selectedBulkRows.map(r => r.id);
 
     let url = `${this.base}/api/v1/bulk/`;
@@ -1297,7 +1287,7 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    this.http.post<any>(url, ids, { headers: hdrs }).subscribe({
+    this.http.post<any>(url, ids, { headers: this.hdrs() }).subscribe({
       next: () => {
         alert('Bulk operation completed successfully.');
         this.bulkActionDrawerOpen = false;

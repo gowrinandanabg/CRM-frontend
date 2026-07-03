@@ -27,7 +27,7 @@
     { "name": "status",      "label": "Status",       "isHeaderView": true,  "pipe": "status", "width": "10rem" },
     { "name": "lastLoginAt", "label": "Last Login",   "isHeaderView": true,  "pipe": "date",   "width": "14rem" }
   ],
-  "tableTool": { "add": true, "edit": false, "refresh": true, "export": true },
+  "tableTool": { "add": false, "edit": false, "refresh": true, "export": true },
   "contextMenuActions": [
     { "label": "Edit",           "action": "edit"       },
     { "label": "Reset Password", "action": "reset-password" },
