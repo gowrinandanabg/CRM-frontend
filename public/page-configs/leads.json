@@ -28,15 +28,25 @@
     { "label": "Delete",  "action": "delete" }
   ],
   "tableList": [
-    { "name": "fullName",      "label": "Name",        "isHeaderView": true,  "width": "14rem" },
-    { "name": "company",       "label": "Company",     "isHeaderView": true,  "width": "12rem" },
-    { "name": "email",         "label": "Email",       "isHeaderView": true,  "width": "16rem" },
-    { "name": "phone",         "label": "Phone",       "isHeaderView": true,  "width": "12rem" },
-    { "name": "leadSource",    "label": "Source",      "isHeaderView": true,  "width": "10rem" },
-    { "name": "industry",      "label": "Industry",    "isHeaderView": true,  "width": "12rem" },
-    { "name": "assignedOwner", "label": "Assigned To", "isHeaderView": true,  "width": "12rem" },
-    { "name": "status",        "label": "Status",      "isHeaderView": true,  "pipe": "status", "width": "10rem" },
-    { "name": "createdAt",     "label": "Created",     "isHeaderView": false, "pipe": "date",   "width": "10rem" }
+    { "name": "fullName",         "label": "Name",           "isHeaderView": true,  "width": "14rem" },
+    { "name": "company",          "label": "Company",        "isHeaderView": true,  "width": "12rem" },
+    { "name": "email",            "label": "Email",          "isHeaderView": true,  "width": "16rem" },
+    { "name": "phone",            "label": "Phone",          "isHeaderView": true,  "width": "12rem" },
+    { "name": "jobTitle",         "label": "Job Title",      "isHeaderView": true,  "width": "12rem" },
+    { "name": "leadSource",       "label": "Source",         "isHeaderView": true,  "width": "10rem" },
+    { "name": "industry",         "label": "Industry",       "isHeaderView": true,  "width": "12rem" },
+    { "name": "assignedOwner",    "label": "Assigned To",    "isHeaderView": true,  "width": "12rem" },
+    { "name": "status",           "label": "Status",         "isHeaderView": true,  "pipe": "status", "width": "10rem" },
+    { "name": "pipelineStage",    "label": "Pipeline Stage", "isHeaderView": true,  "width": "12rem" },
+    { "name": "estimatedValue",   "label": "Est. Value",     "isHeaderView": true,  "width": "10rem" },
+    { "name": "expectedCloseDate","label": "Expected Close", "isHeaderView": true,  "pipe": "date",   "width": "10rem" },
+    { "name": "website",          "label": "Website",        "isHeaderView": true,  "width": "12rem" },
+    { "name": "address",          "label": "Address",        "isHeaderView": true,  "width": "14rem" },
+    { "name": "city",             "label": "City",           "isHeaderView": true,  "width": "10rem" },
+    { "name": "state",            "label": "State",          "isHeaderView": true,  "width": "10rem" },
+    { "name": "country",          "label": "Country",        "isHeaderView": true,  "width": "10rem" },
+    { "name": "tags",             "label": "Tags",           "isHeaderView": true,  "width": "12rem" },
+    { "name": "createdAt",        "label": "Created",        "isHeaderView": false, "pipe": "date",   "width": "10rem" }
   ],
   "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "import": true, "duplicate": true },
   "steps": [
@@ -47,6 +57,8 @@
         { "name": "email",         "label": "Email",          "type": "input",  "inputType": "email", "required": true, "colSpan": "col-1" },
         { "name": "phone",         "label": "Phone",          "type": "input",  "inputType": "tel",   "colSpan": "col-1" },
         { "name": "company",       "label": "Company",        "type": "input",  "required": true,  "colSpan": "col-1" },
+        { "name": "jobTitle",      "label": "Job Title",      "type": "input",  "colSpan": "col-1" },
+        { "name": "website",       "label": "Website",        "type": "input",  "colSpan": "col-1" },
         { "name": "industry",      "label": "Industry",       "type": "select", "colSpan": "col-1",
           "options": [
             { "label": "Technology",  "value": "Technology"  },
@@ -77,6 +89,12 @@
         },
         { "name": "assignedOwner", "label": "Assigned Owner", "type": "input",  "colSpan": "col-1", "isDisabled": true },
         { "name": "estimatedValue","label": "Estimated Value","type": "input",  "inputType": "number", "colSpan": "col-1" },
+        { "name": "expectedCloseDate", "label": "Expected Close Date", "type": "date", "colSpan": "col-1" },
+        { "name": "address",       "label": "Address",        "type": "input",  "colSpan": "col-1" },
+        { "name": "city",          "label": "City",           "type": "input",  "colSpan": "col-1" },
+        { "name": "state",         "label": "State",          "type": "input",  "colSpan": "col-1" },
+        { "name": "country",       "label": "Country",        "type": "input",  "colSpan": "col-1" },
+        { "name": "tags",          "label": "Tags",           "type": "input",  "colSpan": "col-1" },
         { "name": "notes",         "label": "Notes",          "type": "textarea","colSpan": "col-3" }
       ]
     }

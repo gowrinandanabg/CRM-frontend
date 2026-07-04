@@ -24,6 +24,12 @@
     { "name": "phone",     "label": "Phone",     "isHeaderView": true,  "width": "12rem" },
     { "name": "industry",  "label": "Industry",  "isHeaderView": true,  "width": "12rem" },
     { "name": "status",    "label": "Status",    "isHeaderView": true,  "pipe": "status", "width": "10rem" },
+    { "name": "website",   "label": "Website",   "isHeaderView": true,  "width": "12rem" },
+    { "name": "address",   "label": "Address",   "isHeaderView": true,  "width": "14rem" },
+    { "name": "city",      "label": "City",      "isHeaderView": true,  "width": "10rem" },
+    { "name": "state",     "label": "State",     "isHeaderView": true,  "width": "10rem" },
+    { "name": "country",   "label": "Country",   "isHeaderView": true,  "width": "10rem" },
+    { "name": "tags",      "label": "Tags",      "isHeaderView": true,  "width": "12rem" },
     { "name": "createdAt", "label": "Created",   "isHeaderView": false, "pipe": "date",   "width": "10rem" }
   ],
   "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "import": true, "duplicate": false },
@@ -56,7 +62,14 @@
             { "label": "New",      "value": "NEW"      },
             { "label": "Reviewed", "value": "REVIEWED" }
           ]
-        }
+        },
+        { "name": "website",   "label": "Website",    "type": "input",  "colSpan": "col-1" },
+        { "name": "address",   "label": "Address",    "type": "input",  "colSpan": "col-1" },
+        { "name": "city",      "label": "City",       "type": "input",  "colSpan": "col-1" },
+        { "name": "state",     "label": "State",      "type": "input",  "colSpan": "col-1" },
+        { "name": "country",   "label": "Country",    "type": "input",  "colSpan": "col-1" },
+        { "name": "tags",      "label": "Tags",       "type": "input",  "colSpan": "col-1" },
+        { "name": "notes",     "label": "Notes",      "type": "textarea", "colSpan": "col-3" }
       ]
     }
   ]
