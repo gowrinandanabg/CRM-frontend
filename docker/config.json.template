@@ -1,0 +1,6 @@
+{
+  "crmApiUrl": "${CRM_API_URL}",
+  "opacApiUrl": "${OPAC_API_URL}",
+  "opacAppUrl": "${OPAC_APP_URL}",
+  "crmAppUrl": "${CRM_APP_URL}"
+}
