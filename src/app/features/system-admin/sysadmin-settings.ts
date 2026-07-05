@@ -91,6 +91,127 @@ import { AppConfigService } from '../../core/services/app-config.service';
         }
       </section>
 
+      <!-- ── Company / Billing Details (printed on Quote & Invoice PDFs) ── -->
+      <section class="settings-section">
+        <div class="section-header">
+          <div class="section-icon billing-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20"/>
+            </svg>
+          </div>
+          <div>
+            <h2>Company &amp; Billing Details</h2>
+            <p>Shown as "Billed From" and payment details on this tenant's Quote &amp; Invoice PDFs</p>
+          </div>
+        </div>
+
+        @if (billingLoading()) {
+          <span class="loading-chip">Loading…</span>
+        } @else {
+
+        @if (billingError()) {
+          <div class="info-banner info-warn">{{ billingError() }}</div>
+        }
+
+        <div class="settings-row">
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Company / Legal Name</span>
+              <span class="setting-desc">Printed as the billed-from company name</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.legalName" placeholder="e.g. Acme Solutions Pvt. Ltd." />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Company Tagline</span>
+              <span class="setting-desc">Short line under the company name</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.companyTagline" placeholder="e.g. Enterprise Solutions" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Company Email</span>
+              <span class="setting-desc">Contact email shown on documents</span>
+            </div>
+            <input class="setting-input" type="email" [(ngModel)]="billingForm.email" placeholder="e.g. contact@yourcompany.com" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Company Phone</span>
+              <span class="setting-desc">Optional contact number</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.phone" placeholder="e.g. +91 98765 43210" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Company Address</span>
+              <span class="setting-desc">Registered / billing address</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.address" placeholder="e.g. 4th Floor, Tech Park, Bengaluru" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>GSTIN</span>
+              <span class="setting-desc">Printed on Invoice PDFs</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.gstin" placeholder="e.g. 27XXXXX1234X1Z5" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Bank Name</span>
+              <span class="setting-desc">Shown in Invoice payment details</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.bankName" placeholder="e.g. HDFC Bank" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Bank Account Number</span>
+              <span class="setting-desc">Account to receive payment</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.bankAccountNumber" placeholder="e.g. 5020XXXXXXXXXX" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Bank IFSC</span>
+              <span class="setting-desc">IFSC code for the account above</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.bankIfsc" placeholder="e.g. HDFC0001234" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>UPI ID</span>
+              <span class="setting-desc">Optional UPI payment address</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.upiId" placeholder="e.g. pay@yourcompany" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Payment Terms (days)</span>
+              <span class="setting-desc">Shown as "Net X days" on documents</span>
+            </div>
+            <input class="setting-input" type="number" min="0" [(ngModel)]="billingForm.paymentTermsDays" placeholder="e.g. 30" />
+          </div>
+          <div class="setting-item">
+            <div class="setting-label">
+              <span>Late Fee Policy</span>
+              <span class="setting-desc">Shown on Invoice PDFs</span>
+            </div>
+            <input class="setting-input" type="text" [(ngModel)]="billingForm.lateFeeText" placeholder="e.g. 1.5% per month overdue" />
+          </div>
+        </div>
+
+        <div class="section-actions">
+          <button class="btn-save" (click)="saveBillingProfile()" [disabled]="billingSaving()">
+            {{ billingSaving() ? 'Saving…' : 'Save Billing Details' }}
+          </button>
+          @if (billingSaveSuccess()) {
+            <span class="save-success">✓ Saved</span>
+          }
+        </div>
+
+        }
+      </section>
+
       <!-- ── General CRM Settings ── -->
       <section class="settings-section">
         <div class="section-header">
@@ -259,6 +380,7 @@ import { AppConfigService } from '../../core/services/app-config.service';
     .license-icon { background: #ede9fe; color: #7c3aed; }
     .general-icon { background: #e0f2fe; color: #0369a1; }
     .notif-icon   { background: #fef3c7; color: #d97706; }
+    .billing-icon { background: #dcfce7; color: #16a34a; }
 
     .status-chip {
       font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
@@ -306,6 +428,14 @@ import { AppConfigService } from '../../core/services/app-config.service';
       min-width: 180px;
     }
     .setting-select:focus { border-color: #6366f1; background: #fff; }
+
+    .setting-input {
+      border: 1px solid #d1d5db; border-radius: 8px;
+      padding: 7px 12px; font-size: 13px; color: #374151;
+      background: #f9fafb; outline: none;
+      min-width: 260px; box-sizing: border-box;
+    }
+    .setting-input:focus { border-color: #6366f1; background: #fff; }
 
     .section-actions { margin-top: 20px; display: flex; align-items: center; gap: 12px; }
     .btn-save {
@@ -355,6 +485,17 @@ export class SysadminSettingsComponent implements OnInit {
   saving      = signal(false);
   saveSuccess = signal(false);
 
+  billingLoading     = signal(true);
+  billingError       = signal<string | null>(null);
+  billingSaving      = signal(false);
+  billingSaveSuccess = signal(false);
+
+  billingForm = {
+    legalName: '', email: '', phone: '', address: '', gstin: '',
+    companyTagline: '', bankName: '', bankAccountNumber: '', bankIfsc: '',
+    upiId: '', paymentTermsDays: 30, lateFeeText: ''
+  };
+
   prefs = {
     currency:    localStorage.getItem('crm_currency')    ?? 'INR',
     dateFormat:  localStorage.getItem('crm_date_format') ?? 'DD/MM/YYYY',
@@ -387,6 +528,31 @@ export class SysadminSettingsComponent implements OnInit {
           this.licenseLoading.set(false);
         }
       });
+
+    this.http.get<any>(`${this.cfg.crmApiUrl}/api/v1/organizations/me/billing-profile`, { headers: this.hdrs() })
+      .subscribe({
+        next: res => {
+          this.billingForm = {
+            legalName: res?.legalName ?? '',
+            email: res?.email ?? '',
+            phone: res?.phone ?? '',
+            address: res?.address ?? '',
+            gstin: res?.gstin ?? '',
+            companyTagline: res?.companyTagline ?? '',
+            bankName: res?.bankName ?? '',
+            bankAccountNumber: res?.bankAccountNumber ?? '',
+            bankIfsc: res?.bankIfsc ?? '',
+            upiId: res?.upiId ?? '',
+            paymentTermsDays: res?.paymentTermsDays ?? 30,
+            lateFeeText: res?.lateFeeText ?? ''
+          };
+          this.billingLoading.set(false);
+        },
+        error: err => {
+          this.billingError.set(err?.error?.message || 'Could not load billing details.');
+          this.billingLoading.set(false);
+        }
+      });
   }
 
   formatDate(d: any): string {
@@ -411,5 +577,22 @@ export class SysadminSettingsComponent implements OnInit {
       this.saveSuccess.set(true);
       setTimeout(() => this.saveSuccess.set(false), 2000);
     }, 400);
+  }
+
+  saveBillingProfile(): void {
+    this.billingSaving.set(true);
+    this.billingError.set(null);
+    this.http.put<any>(`${this.cfg.crmApiUrl}/api/v1/organizations/me/billing-profile`, this.billingForm, { headers: this.hdrs() })
+      .subscribe({
+        next: () => {
+          this.billingSaving.set(false);
+          this.billingSaveSuccess.set(true);
+          setTimeout(() => this.billingSaveSuccess.set(false), 2000);
+        },
+        error: err => {
+          this.billingSaving.set(false);
+          this.billingError.set(err?.error?.message || 'Failed to save billing details.');
+        }
+      });
   }
 }
