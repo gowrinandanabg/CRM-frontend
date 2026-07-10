@@ -614,6 +614,70 @@ $sidebar-label:   #64748B;
   }
 }
 
+// ── License Expired Modal ───────────────────────────────────────────────────
+.license-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.license-modal {
+  background: var(--crm-surface, #fff);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+
+  h3 {
+    margin: 16px 0 8px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 20px;
+    color: #64748B;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+.license-modal-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, .15);
+  color: #B91C1C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.license-modal-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.license-modal-close {
+  background: #0F3460;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover { background: #0c2a4d; }
+}
+
 // ── Responsive ─────────────────────────────────────────────────────────────
 @media (max-width: 768px) {
   .crm-sidebar { width: $sidebar-w-col; }

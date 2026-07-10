@@ -63,6 +63,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   allowedFeatures = signal<string[]>([]);
   featuresLoaded  = signal(false);
 
+  showLicenseExpiredDialog = signal(false);
+
+  closeLicenseExpiredDialog(): void {
+    this.showLicenseExpiredDialog.set(false);
+  }
+
   ngOnInit() {
     this.loadNotifications();
 
@@ -70,6 +76,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     // current master license even after a re-login without a page reload.
     this.orgSvc.getMyLicenseStatus().subscribe({
       next: status => {
+        if (status?.status === 'EXPIRED') {
+          this.showLicenseExpiredDialog.set(true);
+        }
         const features = status?.features ?? [];
         if (features.length > 0) {
           localStorage.setItem('accesspolicy', JSON.stringify(features));
