@@ -293,6 +293,44 @@ import { AuthService } from '../../core/services/auth';
         </div>
       </div>
     }
+
+    <!-- Admin reset-password modal -->
+    @if (resetPasswordTarget(); as target) {
+      <div style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:3000;padding:24px;"
+           (click)="cancelResetPassword()">
+        <div style="background:var(--crm-card);border:1px solid var(--crm-border);border-radius:16px;width:100%;max-width:400px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.2);display:flex;flex-direction:column;overflow:hidden;"
+             (click)="$event.stopPropagation()">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--crm-border);">
+            <h2 style="font-size:1.05rem;font-weight:700;color:var(--crm-text-1);margin:0;">Reset Password</h2>
+            <button (click)="cancelResetPassword()" aria-label="Close"
+                    style="width:30px;height:30px;border-radius:8px;border:none;background:none;color:var(--crm-text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px;">
+            <p style="font-size:0.85rem;color:var(--crm-text-2);margin:0;">Set a new password for <strong>{{ target.label }}</strong>.</p>
+            <input type="password" [(ngModel)]="resetPasswordValueModel" placeholder="New password"
+                   style="padding:9px 12px;border:1px solid var(--crm-border);border-radius:8px;font-size:0.85rem;background:var(--crm-bg);color:var(--crm-text-1);"
+                   (keydown.enter)="submitResetPassword()" />
+            @if (resetPasswordError()) {
+              <span style="font-size:0.78rem;color:#DC2626;">{{ resetPasswordError() }}</span>
+            }
+          </div>
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--crm-border);">
+            <button (click)="cancelResetPassword()"
+                    style="padding:7px 16px;border:1px solid var(--crm-border);border-radius:8px;background:none;font-size:0.8rem;font-weight:600;color:var(--crm-text-2);cursor:pointer;">
+              Cancel
+            </button>
+            <button (click)="submitResetPassword()" [disabled]="resetPasswordSubmitting()"
+                    style="padding:7px 16px;border:none;border-radius:8px;background:#0F3460;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">
+              {{ resetPasswordSubmitting() ? 'Resetting...' : 'Reset Password' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: [`
     :host { display: block; height: 100%; }
@@ -483,6 +521,46 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
 
   selectedRow: any = null;
   previewRecord: any = null;
+
+  resetPasswordTarget = signal<{ uuid: string; label: string } | null>(null);
+  resetPasswordValue = signal('');
+  resetPasswordSubmitting = signal(false);
+  resetPasswordError = signal('');
+
+  get resetPasswordValueModel(): string { return this.resetPasswordValue(); }
+  set resetPasswordValueModel(v: string) { this.resetPasswordValue.set(v); }
+
+  cancelResetPassword(): void {
+    this.resetPasswordTarget.set(null);
+    this.resetPasswordValue.set('');
+    this.resetPasswordError.set('');
+  }
+
+  submitResetPassword(): void {
+    const target = this.resetPasswordTarget();
+    if (!target) return;
+    const newPwd = this.resetPasswordValue().trim();
+    if (!newPwd) {
+      this.resetPasswordError.set('Please enter a new password.');
+      return;
+    }
+
+    this.resetPasswordSubmitting.set(true);
+    this.resetPasswordError.set('');
+    const base = this.page!.api;
+    const sub = this.store.post(`${base}/${target.uuid}/reset-password`, { newPassword: newPwd }).subscribe({
+      next: () => {
+        this.resetPasswordSubmitting.set(false);
+        this.toast.addSuccess('Password Reset', `Password updated for ${target.label}.`);
+        this.cancelResetPassword();
+      },
+      error: (err) => {
+        this.resetPasswordSubmitting.set(false);
+        this.resetPasswordError.set(err?.error?.message || err.message || 'Reset failed.');
+      }
+    });
+    this._subs.add(sub);
+  }
 
   readonly quotePreviewFields = [
     { label: 'Quote Number', key: 'quoteNumber',  type: 'text' },
@@ -797,13 +875,9 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       case 'reset-password': {
-        const newPwd = prompt(`Set new password for ${label}:`);
-        if (!newPwd) return;
-        const sub = this.store.post(`${base}/${uuid}/reset-password`, { newPassword: newPwd }).subscribe({
-          next: () => this.toast.addSuccess('Password Reset', `Password updated for ${label}.`),
-          error: (err) => this.showError(`Reset failed: ${err?.error?.message || err.message}`)
-        });
-        this._subs.add(sub);
+        this.resetPasswordTarget.set({ uuid, label });
+        this.resetPasswordValue.set('');
+        this.resetPasswordError.set('');
         break;
       }
 

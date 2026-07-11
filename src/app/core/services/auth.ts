@@ -109,4 +109,28 @@ export class AuthService {
     localStorage.removeItem('accesspolicy');
     localStorage.removeItem('licenseStatus');
   }
+
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/reset-password`, { token, newPassword });
+  }
+
+  validateResetToken(token: string): Observable<{
+    valid: boolean;
+    reason?: 'expired' | 'invalid';
+    username?: string;
+    tenantName?: string;
+    maskedEmail?: string;
+  }> {
+    return this.http.get<{
+      valid: boolean;
+      reason?: 'expired' | 'invalid';
+      username?: string;
+      tenantName?: string;
+      maskedEmail?: string;
+    }>(`${this.apiUrl}/reset-password/validate`, { params: { token } });
+  }
 }
