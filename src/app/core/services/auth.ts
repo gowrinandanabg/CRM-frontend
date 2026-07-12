@@ -17,6 +17,7 @@ interface AuthResponse {
   email: string;
   role: string;
   licenseWarning?: string | null;
+  graceRemainingDays?: number | null;
   tenantName?: string | null;
   organizationId?: string | null;
   accessPolicy?: string[];
@@ -59,6 +60,16 @@ export class AuthService {
     // source of truth for what this user can see, separate from the tenant's org-wide
     // license status.
     localStorage.setItem('accesspolicy', JSON.stringify(r.accessPolicy ?? []));
+
+    // sessionStorage (not localStorage): the grace-period popup should reappear on every
+    // fresh login, not persist/resurface across an already-open session or other tabs.
+    if (r.licenseWarning) {
+      sessionStorage.setItem('graceWarningMessage', r.licenseWarning);
+      sessionStorage.setItem('graceRemainingDays', String(r.graceRemainingDays ?? ''));
+    } else {
+      sessionStorage.removeItem('graceWarningMessage');
+      sessionStorage.removeItem('graceRemainingDays');
+    }
   }
 
   getLicenseWarning(): string | null {

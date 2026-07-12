@@ -69,6 +69,16 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.showLicenseExpiredDialog.set(false);
   }
 
+  showGraceWarningDialog = signal(false);
+  graceWarningMessage = signal('');
+
+  closeGraceWarningDialog(): void {
+    this.showGraceWarningDialog.set(false);
+    // Consumed once per login — remove so it doesn't resurface on a later in-app reload.
+    sessionStorage.removeItem('graceWarningMessage');
+    sessionStorage.removeItem('graceRemainingDays');
+  }
+
   ngOnInit() {
     this.loadNotifications();
 
@@ -83,6 +93,15 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       try { this.allowedFeatures.set(JSON.parse(cached)); } catch { /* ignore */ }
     }
     this.featuresLoaded.set(true);
+
+    // Set fresh by storeSession() on every successful login (and only then) — reading it
+    // here means it surfaces exactly once per login, not on every page reload within the
+    // same session (closeGraceWarningDialog() removes it once acknowledged).
+    const graceMsg = sessionStorage.getItem('graceWarningMessage');
+    if (graceMsg) {
+      this.graceWarningMessage.set(graceMsg);
+      this.showGraceWarningDialog.set(true);
+    }
 
     // Only used for the tenant-wide expired-license dialog — never for per-user access.
     this.orgSvc.getMyLicenseStatus().subscribe({
