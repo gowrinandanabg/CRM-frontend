@@ -32,7 +32,7 @@
     { "name": "tags",      "label": "Tags",      "isHeaderView": true,  "width": "12rem" },
     { "name": "createdAt", "label": "Created",   "isHeaderView": false, "pipe": "date",   "width": "10rem" }
   ],
-  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "import": true, "duplicate": false },
+  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "duplicate": false },
   "contextMenuActions": [
     { "label": "Open",   "action": "navigate" },
     { "label": "Edit",   "action": "edit" },
