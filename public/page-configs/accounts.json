@@ -29,7 +29,7 @@
     { "name": "status",         "label": "Status",       "isHeaderView": true,  "pipe": "status", "width": "10rem" },
     { "name": "createdAt",      "label": "Created",      "isHeaderView": false, "pipe": "date",   "width": "10rem" }
   ],
-  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "import": true },
+  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true },
   "contextMenuActions": [
     { "label": "Open",       "action": "navigate"                                        },
     { "label": "Edit",       "action": "edit",       "showWhen": ["Active", "Prospect"]   },
