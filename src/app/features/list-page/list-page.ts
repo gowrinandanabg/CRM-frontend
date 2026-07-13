@@ -27,7 +27,8 @@ import {
   ReportBuilderComponent,
   ReportsComponent,
   UserSettingsComponent,
-  PageStoreService
+  PageStoreService,
+  FormDrawerComponent
 } from 'orque-ui';
 import { KanbanComponent } from './kanban';
 import { SysadminSettingsComponent } from '../system-admin/sysadmin-settings';
@@ -43,6 +44,7 @@ import { AuthService } from '../../core/services/auth';
     CommonModule,
     FormsModule,
     PageRendererComponent,
+    FormDrawerComponent,
     KanbanComponent,
     CalendarWorkspaceComponent,
     CustomizationComponent,
@@ -115,6 +117,17 @@ import { AuthService } from '../../core/services/auth';
               <o-page-renderer [page]="page" [data]="data" [userRole]="auth.getRole() || ''" (actionTriggered)="handleAction($event)" (selectionChange)="onSelectionChanged($event)"></o-page-renderer>
           } @else {
             <app-kanban [resource]="resource" [data]="data" (action)="handleAction($event)"></app-kanban>
+            <o-form-drawer
+              [open]="editDrawerOpen"
+              [title]="editDrawerTitle"
+              [steps]="page?.steps || []"
+              [rowData]="editDrawerRowData"
+              [showSubmit]="false"
+              [readOnly]="false"
+              [actionType]="'edit'"
+              (closeDrawer)="editDrawerOpen = false"
+              (save)="onEditDrawerSave($event)">
+            </o-form-drawer>
           }
 
           <!-- Floating Bottom Bar for PDF operations (quotes & invoices) -->
@@ -600,6 +613,17 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
   readonly auth = inject(AuthService);
   private get base(): string { return this.cfg.crmApiUrl; }
 
+  // Kanban board edit drawer (mirrors o-page-renderer's own form-drawer wiring,
+  // since the Kanban view is a plain component, not o-page-renderer)
+  editDrawerOpen = false;
+  editDrawerTitle = '';
+  editDrawerRowData: any = null;
+
+  onEditDrawerSave(payload: any): void {
+    this.editDrawerOpen = false;
+    this.handleAction({ action: 'save', row: this.editDrawerRowData, payload } as PageAction);
+  }
+
   // Bulk operations states
   selectedBulkRows: any[] = [];
   bulkActionDrawerOpen = false;
@@ -767,6 +791,13 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
 
       case 'navigate': {
         if (uuid) this.router.navigate(['/', this.resource, uuid]);
+        break;
+      }
+
+      case 'edit': {
+        this.editDrawerTitle = `Edit ${label}`;
+        this.editDrawerRowData = { ...event.row };
+        this.editDrawerOpen = true;
         break;
       }
 
