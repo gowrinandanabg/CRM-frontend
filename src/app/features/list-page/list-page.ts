@@ -799,6 +799,18 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
         break;
       }
 
+      case 'disqualify': {
+        const sub = this.store.post(`${base}/disqualify/${uuid}`, {}).subscribe({
+          next: () => {
+            this.toast.addSuccess('Disqualified', `${label} moved to Disqualified.`);
+            this.loadData(this.page!.api);
+          },
+          error: (err) => this.showError(`Action failed: ${err?.error?.message || err.message}`)
+        });
+        this._subs.add(sub);
+        break;
+      }
+
       case 'submit': {
         const targetApi = uuid ? `${base}/submit/${uuid}` : base;
         const sub = this.store.post(targetApi, event.payload ?? {}).subscribe({

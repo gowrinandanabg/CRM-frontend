@@ -21,11 +21,12 @@
     }
   },
   "contextMenuActions": [
-    { "label": "View",    "action": "view" },
-    { "label": "Edit",    "action": "edit",    "showWhen": ["NEW", "QUALIFIED"] },
-    { "label": "Qualify", "action": "qualify", "showWhen": ["NEW"] },
-    { "label": "Convert", "action": "submit",  "showWhen": ["QUALIFIED"] },
-    { "label": "Delete",  "action": "delete" }
+    { "label": "View",       "action": "view" },
+    { "label": "Edit",       "action": "edit",       "showWhen": ["NEW", "QUALIFIED"] },
+    { "label": "Qualify",    "action": "qualify",    "showWhen": ["NEW", "DISQUALIFIED"] },
+    { "label": "Convert",    "action": "submit",     "showWhen": ["QUALIFIED"] },
+    { "label": "Disqualify", "action": "disqualify", "showWhen": ["NEW", "QUALIFIED"] },
+    { "label": "Delete",     "action": "delete" }
   ],
   "tableList": [
     { "name": "fullName",         "label": "Name",           "isHeaderView": true,  "width": "14rem" },
