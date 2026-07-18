@@ -802,6 +802,9 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       case 'save': {
+        if (this.page && !this.validateEmailFields(event.payload)) {
+          break;
+        }
         const payloadId = event.payload?.id ?? event.row?.id
           ?? event.row?.[this.page?.tableUniqueFieldName || 'id'];
         const obs = payloadId
@@ -1109,6 +1112,21 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
 
   private showError(msg: string): void {
     this.toast.addError('Error', msg);
+  }
+
+  private validateEmailFields(payload: any): boolean {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    for (const step of this.page?.steps || []) {
+      for (const field of step.fields || []) {
+        if (field.inputType === 'email' && payload[field.name] != null && payload[field.name] !== '') {
+          if (!emailPattern.test(payload[field.name])) {
+            this.toast.addError('Invalid field', `${field.label} must be a valid email address.`);
+            return false;
+          }
+        }
+      }
+    }
+    return true;
   }
 
   toggleFilterPopup(field: string): void {
