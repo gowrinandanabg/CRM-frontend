@@ -249,11 +249,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const fetchSessions = this.isSalesUser()
       ? of(null)
       : this.store.get('/api/v1/sessions/stats').pipe(catchError(() => of(null)));
+    // Previously /deals and /activities were fetched unscoped, so picking "View as: <salesperson>"
+    // correctly filtered the summary KPI numbers (backend takes an explicit scopedUsername) but left
+    // the Deal Pipeline chart and Recent Activities list showing every salesperson's records —
+    // visibly contradicting the KPIs sitting right above them. Pass the same scope through here too.
+    const scopeQuery = scopeUsername ? `?assignedTo=${encodeURIComponent(scopeUsername)}` : '';
 
     forkJoin({
       summary:  this.dashboardService.getDashboardSummary(scopeUsername).pipe(catchError(() => of(null))),
-      deals:    this.store.getList('/api/v1/deals').pipe(catchError(() => of([]))),
-      acts:     this.store.getList('/api/v1/activities').pipe(catchError(() => of([]))),
+      deals:    this.store.getList(`/api/v1/deals${scopeQuery}`).pipe(catchError(() => of([]))),
+      acts:     this.store.getList(`/api/v1/activities${scopeQuery}`).pipe(catchError(() => of([]))),
       sessions: fetchSessions,
     }).subscribe(({ summary, deals, acts, sessions }) => {
       this.buildDashboard(summary, deals, acts, sessions);
@@ -298,9 +303,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private buildDashboard(d: any, deals: any[], acts: any[], sessions: any): void {
-    const totalDeals       = deals.length;
-    const pipelineValue    = deals.reduce((s: number, x: any) => s + (x.amount || 0), 0);
-    const wonDeals         = deals.filter((x: any) => (x.stage || '').toLowerCase().includes('won'));
+    // Exact-match against the real stage values (see deals.json's `stage` field options:
+    // Prospecting/Qualification/Proposal/Negotiation/Closed Won/Closed Lost) rather than a
+    // substring check — a substring check on 'won' happens to work for "Closed Won" but is
+    // fragile, and there was no equivalent handling for "Closed Lost" at all.
+    const stageOf = (x: any) => (x.stage || x.status || '').trim().toLowerCase();
+    const wonDeals  = deals.filter((x: any) => stageOf(x) === 'closed won');
+    const openDeals = deals.filter((x: any) => stageOf(x) !== 'closed won' && stageOf(x) !== 'closed lost');
+
+    // Revenue Generated and Pipeline Value must both come from the same source (Deals) as
+    // their own subtitles and the "Deal Pipeline" chart directly below them. They previously
+    // preferred a backend-computed number that actually aggregated the Leads module's
+    // estimated_value field instead — a different module with its own separate pipeline
+    // (see Lead.pipelineStage) — so the headline figure and its subtitle/chart could easily
+    // disagree, and neither reliably matched what you'd find by checking Deals directly.
+    // Pipeline Value only makes sense as the sum of still-open opportunities: previously this
+    // summed every deal's amount, including Closed Won and Closed Lost ones.
+    const pipelineValue    = openDeals.reduce((s: number, x: any) => s + (x.amount || 0), 0);
     const revenueGenerated = wonDeals.reduce((s: number, x: any) => s + (x.amount || 0), 0);
 
     const totalLeads    = d?.totalLeads    ?? 0;
@@ -313,7 +332,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const emailsReplied = d?.emailsReplied ?? 0;
 
     const wonSub     = `${wonDeals.length} Closed Won ${this.pluralize(wonDeals.length, 'deal')}`;
-    const dealSub    = `${totalDeals} open ${this.pluralize(totalDeals, 'deal')}`;
+    // Was deals.length (every deal, including Closed Won/Lost ones) mislabeled as "open".
+    const dealSub    = `${openDeals.length} open ${this.pluralize(openDeals.length, 'deal')}`;
     const hotLeadSub = hotLeads > 0
       ? `${hotLeads} hot ${this.pluralize(hotLeads, 'lead')}`
       : 'None qualified yet';
@@ -321,13 +341,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.kpis.set([
       {
         label: 'Revenue Generated',
-        value: this.formatCrore(d?.revenueGenerated ?? revenueGenerated),
+        value: this.formatCrore(revenueGenerated),
         sub: wonSub, trend: 'This period', trendUp: true, color: '#0F3460',
         iconPath: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'
       },
       {
         label: 'Pipeline Value',
-        value: this.formatCrore(d?.pipelineValue ?? pipelineValue),
+        value: this.formatCrore(pipelineValue),
         sub: dealSub, trend: 'Active', trendUp: true, color: '#16A34A',
         iconPath: 'M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z'
       },
