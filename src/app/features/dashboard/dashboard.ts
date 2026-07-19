@@ -1,11 +1,35 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { OStatCardComponent, PageStoreService } from 'orque-ui';
 import { DashboardService, SalesUserOption } from '../../core/services/dashboard.service';
+
+type CardType = 'kpi' | 'pipeline' | 'activity' | 'quick_actions' | 'email_stats';
+
+/** A card in a saved custom dashboard, keyed the same way the Dashboard Builder saves
+ *  it — reuses the exact same cards as the default dashboard below (kpi -> o-stat-card,
+ *  pipeline/activity/quick_actions/email_stats -> the same dash-card sections), just
+ *  picked/arranged differently. No bespoke widget UI. */
+interface CustomWidget {
+  key: string;
+  type: CardType;
+  title: string;
+}
+
+/** Order matches the this.kpis() array built in buildDashboard() below, so a saved
+ *  kpi card's live label/value/color/icon can be looked up by index. */
+const KPI_KEYS = ['revenue', 'pipelineValue', 'leads', 'contacts', 'tasks', 'campaigns'];
+
+/** Same fixed card catalog the Dashboard Builder offers — titles for the non-kpi cards. */
+const CARD_TITLES: Record<string, string> = {
+  pipeline: 'Deal Pipeline',
+  activity: 'Recent Activities',
+  quick_actions: 'Quick Actions',
+  email_stats: 'Email Performance',
+};
 
 interface KpiCard {
   label: string; value: string | number; sub: string;
@@ -41,10 +65,18 @@ interface QuickAction {
 export class DashboardComponent implements OnInit, OnDestroy {
   private readonly store = inject(PageStoreService);
   private readonly dashboardService = inject(DashboardService);
-  private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   loading = signal(true);
   dashboards = signal<any[]>([]);
+
+  // Collapses the header action row (filters/toggles/buttons) for a cleaner look.
+  actionsCollapsed = signal(false);
+
+  // Custom (saved) dashboard view — when set, the page renders these widgets in
+  // place instead of the default KPI/pipeline layout, no navigation involved.
+  activeCustomDashboard = signal<any | null>(null);
+  customWidgets = signal<CustomWidget[]>([]);
 
   // Admin user-picker
   salesUsers = signal<SalesUserOption[]>([]);
@@ -102,12 +134,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   activities   = signal<RecentActivity[]>([]);
   emailStats   = signal<{ label: string; value: string; pct: number; color: string }[]>([]);
 
+  // Ticks every minute so the greeting flips from "morning" to "afternoon" etc. live,
+  // instead of freezing at whatever it was when the page first loaded.
+  private readonly clockTick = signal(Date.now());
   greeting = computed(() => {
-    const h = new Date().getHours();
+    const h = new Date(this.clockTick()).getHours();
     if (h < 12) return 'Good morning';
     if (h < 17) return 'Good afternoon';
     return 'Good evening';
   });
+  private clockTimer: any = null;
 
   readonly quickActions: QuickAction[] = [
     { label: 'New Lead',     route: '/leads',     color: '#0F3460',
@@ -124,19 +160,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
       icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8' },
   ];
 
+  private static readonly VIEW_AS_KEY = 'crm_dashboard_view_as';
+
   ngOnInit(): void {
     this.loadWidgetSizes();
     if (this.isAdmin()) {
+      const savedViewAs = localStorage.getItem(DashboardComponent.VIEW_AS_KEY);
+      if (savedViewAs !== null) this.selectedUsername.set(savedViewAs);
       this.dashboardService.getSalesUsers().pipe(catchError(() => of([]))).subscribe(users => {
         this.salesUsers.set(users);
       });
     }
     this.loadDashboardData();
     this.loadCustomDashboards();
+    this.clockTimer = setInterval(() => this.clockTick.set(Date.now()), 60_000);
   }
 
   ngOnDestroy(): void {
     this.clearRefreshTimer();
+    if (this.clockTimer) clearInterval(this.clockTimer);
   }
 
   loadCustomDashboards() {
@@ -144,22 +186,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .pipe(catchError(() => of([])))
       .subscribe((list: any) => {
         this.dashboards.set(list || []);
+        const lastId = Number(localStorage.getItem('crm_last_dashboard_id'));
+        const toRestore = lastId ? (list || []).find((d: any) => d.id === lastId) : null;
+        if (toRestore) this.selectCustomDashboard(toRestore);
+        // Force the dashboard-switcher <select>'s [value] binding to sync now — this
+        // runs inside an async subscribe callback, so without this the DOM can lag
+        // behind activeCustomDashboard() until some unrelated change triggers detection.
+        this.cdr.detectChanges();
       });
   }
 
-  onDashboardSwitch(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const value = target.value;
+  /** Bound to the switcher's ngModelChange (emits 'default' or the picked dashboard's id). */
+  onDashboardPicked(value: string | number): void {
     if (value === 'default') {
+      localStorage.removeItem('crm_last_dashboard_id');
+      this.activeCustomDashboard.set(null);
+      this.customWidgets.set([]);
       return;
     }
-    const dashboardId = Number(value);
-    localStorage.setItem('crm_last_dashboard_id', String(dashboardId));
-    this.router.navigate(['/dashboard-builder']);
+    const dash = this.dashboards().find((d: any) => d.id === Number(value));
+    if (dash) this.selectCustomDashboard(dash);
+  }
+
+  /** Selects a saved dashboard view in place and remembers it (crm_last_dashboard_id)
+   *  so a page refresh reopens the same view instead of resetting to Default. */
+  private selectCustomDashboard(dash: any): void {
+    localStorage.setItem('crm_last_dashboard_id', String(dash.id));
+    this.activeCustomDashboard.set(dash);
+    try {
+      const savedKeys: { key: string }[] = JSON.parse(dash.layoutConfig || '[]');
+      this.customWidgets.set(savedKeys.map(sw => this.toCustomWidget(sw.key)).filter((w): w is CustomWidget => !!w));
+    } catch {
+      this.customWidgets.set([]);
+    }
+  }
+
+  private toCustomWidget(key: string): CustomWidget | null {
+    if (KPI_KEYS.includes(key)) return { key, type: 'kpi', title: '' };
+    if (CARD_TITLES[key]) return { key, type: key as CardType, title: CARD_TITLES[key] };
+    return null;
+  }
+
+  /** Live label/value/color/icon for a saved kpi card, sourced from the same kpis()
+   *  signal the default KPI grid below renders — so the custom view always matches. */
+  getCustomKpi(key: string): KpiCard | undefined {
+    return this.kpis()[KPI_KEYS.indexOf(key)];
+  }
+
+  hasCustomKpis(): boolean {
+    return this.customWidgets().some(w => w.type === 'kpi');
   }
 
   onUserPickerChange(username: string): void {
     this.selectedUsername.set(username);
+    localStorage.setItem(DashboardComponent.VIEW_AS_KEY, username);
     this.loadDashboardData();
   }
 
@@ -169,11 +249,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const fetchSessions = this.isSalesUser()
       ? of(null)
       : this.store.get('/api/v1/sessions/stats').pipe(catchError(() => of(null)));
+    // Previously /deals and /activities were fetched unscoped, so picking "View as: <salesperson>"
+    // correctly filtered the summary KPI numbers (backend takes an explicit scopedUsername) but left
+    // the Deal Pipeline chart and Recent Activities list showing every salesperson's records —
+    // visibly contradicting the KPIs sitting right above them. Pass the same scope through here too.
+    const scopeQuery = scopeUsername ? `?assignedTo=${encodeURIComponent(scopeUsername)}` : '';
 
     forkJoin({
       summary:  this.dashboardService.getDashboardSummary(scopeUsername).pipe(catchError(() => of(null))),
-      deals:    this.store.getList('/api/v1/deals').pipe(catchError(() => of([]))),
-      acts:     this.store.getList('/api/v1/activities').pipe(catchError(() => of([]))),
+      deals:    this.store.getList(`/api/v1/deals${scopeQuery}`).pipe(catchError(() => of([]))),
+      acts:     this.store.getList(`/api/v1/activities${scopeQuery}`).pipe(catchError(() => of([]))),
       sessions: fetchSessions,
     }).subscribe(({ summary, deals, acts, sessions }) => {
       this.buildDashboard(summary, deals, acts, sessions);
@@ -218,9 +303,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private buildDashboard(d: any, deals: any[], acts: any[], sessions: any): void {
-    const totalDeals       = deals.length;
-    const pipelineValue    = deals.reduce((s: number, x: any) => s + (x.amount || 0), 0);
-    const wonDeals         = deals.filter((x: any) => (x.stage || '').toLowerCase().includes('won'));
+    // Exact-match against the real stage values (see deals.json's `stage` field options:
+    // Prospecting/Qualification/Proposal/Negotiation/Closed Won/Closed Lost) rather than a
+    // substring check — a substring check on 'won' happens to work for "Closed Won" but is
+    // fragile, and there was no equivalent handling for "Closed Lost" at all.
+    const stageOf = (x: any) => (x.stage || x.status || '').trim().toLowerCase();
+    const wonDeals  = deals.filter((x: any) => stageOf(x) === 'closed won');
+    const openDeals = deals.filter((x: any) => stageOf(x) !== 'closed won' && stageOf(x) !== 'closed lost');
+
+    // Revenue Generated and Pipeline Value must both come from the same source (Deals) as
+    // their own subtitles and the "Deal Pipeline" chart directly below them. They previously
+    // preferred a backend-computed number that actually aggregated the Leads module's
+    // estimated_value field instead — a different module with its own separate pipeline
+    // (see Lead.pipelineStage) — so the headline figure and its subtitle/chart could easily
+    // disagree, and neither reliably matched what you'd find by checking Deals directly.
+    // Pipeline Value only makes sense as the sum of still-open opportunities: previously this
+    // summed every deal's amount, including Closed Won and Closed Lost ones.
+    const pipelineValue    = openDeals.reduce((s: number, x: any) => s + (x.amount || 0), 0);
     const revenueGenerated = wonDeals.reduce((s: number, x: any) => s + (x.amount || 0), 0);
 
     const totalLeads    = d?.totalLeads    ?? 0;
@@ -233,7 +332,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const emailsReplied = d?.emailsReplied ?? 0;
 
     const wonSub     = `${wonDeals.length} Closed Won ${this.pluralize(wonDeals.length, 'deal')}`;
-    const dealSub    = `${totalDeals} open ${this.pluralize(totalDeals, 'deal')}`;
+    // Was deals.length (every deal, including Closed Won/Lost ones) mislabeled as "open".
+    const dealSub    = `${openDeals.length} open ${this.pluralize(openDeals.length, 'deal')}`;
     const hotLeadSub = hotLeads > 0
       ? `${hotLeads} hot ${this.pluralize(hotLeads, 'lead')}`
       : 'None qualified yet';
@@ -241,13 +341,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.kpis.set([
       {
         label: 'Revenue Generated',
-        value: this.formatCrore(d?.revenueGenerated ?? revenueGenerated),
+        value: this.formatCrore(revenueGenerated),
         sub: wonSub, trend: 'This period', trendUp: true, color: '#0F3460',
         iconPath: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'
       },
       {
         label: 'Pipeline Value',
-        value: this.formatCrore(d?.pipelineValue ?? pipelineValue),
+        value: this.formatCrore(pipelineValue),
         sub: dealSub, trend: 'Active', trendUp: true, color: '#16A34A',
         iconPath: 'M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z'
       },

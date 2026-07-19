@@ -24,12 +24,12 @@
     { "name": "phone",          "label": "Phone",        "isHeaderView": true,  "width": "14rem" },
     { "name": "website",        "label": "Website",      "isHeaderView": true,  "width": "14rem" },
     { "name": "employees",      "label": "Employees",    "isHeaderView": true,  "width": "10rem" },
-    { "name": "annualRevenue",  "label": "Revenue",      "isHeaderView": true,  "width": "12rem" },
+    { "name": "annualRevenue",  "label": "Annual Revenue", "isHeaderView": true,  "width": "12rem" },
     { "name": "country",        "label": "Country",      "isHeaderView": true,  "width": "10rem" },
     { "name": "status",         "label": "Status",       "isHeaderView": true,  "pipe": "status", "width": "10rem" },
     { "name": "createdAt",      "label": "Created",      "isHeaderView": false, "pipe": "date",   "width": "10rem" }
   ],
-  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true, "import": true },
+  "tableTool": { "add": true, "edit": true, "refresh": true, "export": true },
   "contextMenuActions": [
     { "label": "Open",       "action": "navigate"                                        },
     { "label": "Edit",       "action": "edit",       "showWhen": ["Active", "Prospect"]   },

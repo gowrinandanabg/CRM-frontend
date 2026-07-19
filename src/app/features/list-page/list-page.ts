@@ -21,16 +21,17 @@ import {
   OToastService,
   CalendarWorkspaceComponent,
   CustomizationComponent,
-  DashboardBuilderComponent,
   EmailWorkspaceComponent,
   InventoryComponent,
   ReportBuilderComponent,
   ReportsComponent,
   UserSettingsComponent,
-  PageStoreService
+  PageStoreService,
+  FormDrawerComponent
 } from 'orque-ui';
 import { KanbanComponent } from './kanban';
 import { SysadminSettingsComponent } from '../system-admin/sysadmin-settings';
+import { CrmDashboardBuilderComponent } from '../crm-dashboard-builder/crm-dashboard-builder';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AppConfigService } from '../../core/services/app-config.service';
@@ -43,10 +44,11 @@ import { AuthService } from '../../core/services/auth';
     CommonModule,
     FormsModule,
     PageRendererComponent,
+    FormDrawerComponent,
     KanbanComponent,
     CalendarWorkspaceComponent,
     CustomizationComponent,
-    DashboardBuilderComponent,
+    CrmDashboardBuilderComponent,
     EmailWorkspaceComponent,
     InventoryComponent,
     ReportBuilderComponent,
@@ -99,7 +101,7 @@ import { AuthService } from '../../core/services/auth';
         <app-inventory></app-inventory>
       }
       @else if (resource === 'dashboard-builder') {
-        <app-dashboard-builder></app-dashboard-builder>
+        <app-crm-dashboard-builder></app-crm-dashboard-builder>
       }
       @else if (resource === 'user-settings') {
         @if (showLicenseSettings()) {
@@ -115,6 +117,17 @@ import { AuthService } from '../../core/services/auth';
               <o-page-renderer [page]="page" [data]="data" [userRole]="auth.getRole() || ''" (actionTriggered)="handleAction($event)" (selectionChange)="onSelectionChanged($event)"></o-page-renderer>
           } @else {
             <app-kanban [resource]="resource" [data]="data" (action)="handleAction($event)"></app-kanban>
+            <o-form-drawer
+              [open]="editDrawerOpen"
+              [title]="editDrawerTitle"
+              [steps]="page?.steps || []"
+              [rowData]="editDrawerRowData"
+              [showSubmit]="false"
+              [readOnly]="false"
+              [actionType]="'edit'"
+              (closeDrawer)="editDrawerOpen = false"
+              (save)="onEditDrawerSave($event)">
+            </o-form-drawer>
           }
 
           <!-- Floating Bottom Bar for PDF operations (quotes & invoices) -->
@@ -600,6 +613,17 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
   readonly auth = inject(AuthService);
   private get base(): string { return this.cfg.crmApiUrl; }
 
+  // Kanban board edit drawer (mirrors o-page-renderer's own form-drawer wiring,
+  // since the Kanban view is a plain component, not o-page-renderer)
+  editDrawerOpen = false;
+  editDrawerTitle = '';
+  editDrawerRowData: any = null;
+
+  onEditDrawerSave(payload: any): void {
+    this.editDrawerOpen = false;
+    this.handleAction({ action: 'save', row: this.editDrawerRowData, payload } as PageAction);
+  }
+
   // Bulk operations states
   selectedBulkRows: any[] = [];
   bulkActionDrawerOpen = false;
@@ -770,7 +794,17 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
         break;
       }
 
+      case 'edit': {
+        this.editDrawerTitle = `Edit ${label}`;
+        this.editDrawerRowData = { ...event.row };
+        this.editDrawerOpen = true;
+        break;
+      }
+
       case 'save': {
+        if (this.page && !this.validateEmailFields(event.payload)) {
+          break;
+        }
         const payloadId = event.payload?.id ?? event.row?.id
           ?? event.row?.[this.page?.tableUniqueFieldName || 'id'];
         const obs = payloadId
@@ -791,6 +825,18 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
         const sub = this.store.post(`${base}/qualify/${uuid}`, {}).subscribe({
           next: () => {
             this.toast.addSuccess('Qualified', `${label} moved to Qualified.`);
+            this.loadData(this.page!.api);
+          },
+          error: (err) => this.showError(`Action failed: ${err?.error?.message || err.message}`)
+        });
+        this._subs.add(sub);
+        break;
+      }
+
+      case 'disqualify': {
+        const sub = this.store.post(`${base}/disqualify/${uuid}`, {}).subscribe({
+          next: () => {
+            this.toast.addSuccess('Disqualified', `${label} moved to Disqualified.`);
             this.loadData(this.page!.api);
           },
           error: (err) => this.showError(`Action failed: ${err?.error?.message || err.message}`)
@@ -1066,6 +1112,21 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
 
   private showError(msg: string): void {
     this.toast.addError('Error', msg);
+  }
+
+  private validateEmailFields(payload: any): boolean {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    for (const step of this.page?.steps || []) {
+      for (const field of step.fields || []) {
+        if (field.inputType === 'email' && payload[field.name] != null && payload[field.name] !== '') {
+          if (!emailPattern.test(payload[field.name])) {
+            this.toast.addError('Invalid field', `${field.label} must be a valid email address.`);
+            return false;
+          }
+        }
+      }
+    }
+    return true;
   }
 
   toggleFilterPopup(field: string): void {

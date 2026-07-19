@@ -47,6 +47,7 @@
           ]
         },
         { "name": "price",    "label": "Price (₹)",    "type": "input",  "inputType": "number", "required": true, "colSpan": "col-1" },
+        { "name": "stock",    "label": "Stock",       "type": "input",  "inputType": "number", "colSpan": "col-1" },
         { "name": "taxRate",  "label": "Tax Rate",     "type": "input",  "colSpan": "col-1" },
         { "name": "status",   "label": "Status",       "type": "select", "colSpan": "col-1",
           "options": [

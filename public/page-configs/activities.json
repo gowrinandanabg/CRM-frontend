@@ -86,6 +86,7 @@
   ],
   "tableTool": {
     "add": true,
+    "edit": true,
     "refresh": true,
     "export": true
   },
@@ -93,6 +94,10 @@
     {
       "label": "View",
       "action": "view"
+    },
+    {
+      "label": "Edit",
+      "action": "edit"
     },
     {
       "label": "Complete",

@@ -15,6 +15,8 @@
     
     <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
 
+      @if (!actionsCollapsed()) {
+
       <!-- Admin User Picker — only visible to admins -->
       @if (isAdmin() && salesUsers().length > 0) {
         <div style="display:flex;align-items:center;gap:6px;">
@@ -34,7 +36,7 @@
 
       <!-- Dashboard Switcher -->
       @if (dashboards().length > 0) {
-        <select (change)="onDashboardSwitch($event)" style="border: 1px solid var(--crm-border); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; background: var(--crm-card); color: var(--crm-text-1); outline: none; cursor: pointer;">
+        <select [ngModel]="activeCustomDashboard()?.id ?? 'default'" (ngModelChange)="onDashboardPicked($event)" style="border: 1px solid var(--crm-border); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; background: var(--crm-card); color: var(--crm-text-1); outline: none; cursor: pointer;">
           <option value="default">Default Dashboard</option>
           @for (d of dashboards(); track d.id) {
             <option [value]="d.id">{{ d.name }}</option>
@@ -58,15 +60,160 @@
         <option [value]="300">Every 5m</option>
       </select>
 
-      <!-- Customize Layout Toggle -->
-      <button (click)="isCustomizing.set(!isCustomizing())" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 600; border-radius: 8px; border: 1px solid var(--crm-border); background: var(--crm-card); color: var(--crm-text-2); cursor: pointer; transition: all 0.15s;" [style.border-color]="isCustomizing() ? 'var(--crm-primary)' : ''" [style.color]="isCustomizing() ? 'var(--crm-primary)' : ''">
-        {{ isCustomizing() ? 'Finish Customizing' : 'Customize Layout' }}
-      </button>
+      <!-- Customize Layout Toggle + Edit Dashboard, docked together -->
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button (click)="isCustomizing.set(!isCustomizing())" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 600; border-radius: 8px; border: 1px solid var(--crm-border); background: var(--crm-card); color: var(--crm-text-2); cursor: pointer; transition: all 0.15s;" [style.border-color]="isCustomizing() ? 'var(--crm-primary)' : ''" [style.color]="isCustomizing() ? 'var(--crm-primary)' : ''">
+          {{ isCustomizing() ? 'Finish Customizing' : 'Customize Layout' }}
+        </button>
+
+        @if (activeCustomDashboard()) {
+          <a [routerLink]="['/dashboard-builder']" title="Edit Dashboard"
+             style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--crm-border);background:var(--crm-card);color:var(--crm-text-2);flex-shrink:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+          </a>
+        }
+      </div>
 
       <a [routerLink]="['/leads']" class="dash-btn dash-btn--outline">View All Leads</a>
-      <a [routerLink]="['/deals']" class="dash-btn dash-btn--primary">+ New Deal</a>
+
+      }
+
+      <!-- Collapse/Expand the action row -->
+      <button (click)="actionsCollapsed.set(!actionsCollapsed())" [title]="actionsCollapsed() ? 'Expand' : 'Collapse'"
+              style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--crm-primary);background:var(--crm-primary);color:#fff;cursor:pointer;flex-shrink:0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+             [style.transform]="actionsCollapsed() ? 'rotate(180deg)' : 'rotate(0deg)'" style="transition: transform 0.2s;">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
     </div>
   </div>
+
+  @if (activeCustomDashboard()) {
+
+  <!-- Custom saved dashboard view — reuses the exact same cards/components as the
+       default dashboard below (o-stat-card, pipeline-stages, activity-list, quick-grid,
+       email-stats), just a different selection/arrangement. No new cards or CSS. -->
+  @if (customWidgets().length === 0) {
+  <div class="dash-empty-state">
+    <div class="dash-empty-state__icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+    </div>
+    <h3>This dashboard is empty</h3>
+    <p>Add cards from the dashboard builder to start seeing data here.</p>
+    <a [routerLink]="['/dashboard-builder']" class="dash-btn dash-btn--primary">Open Dashboard Builder</a>
+  </div>
+  } @else {
+
+  @if (hasCustomKpis()) {
+  <div class="metrics-grid" style="margin-bottom: 24px;">
+    @for (w of customWidgets(); track w.key) {
+      @if (w.type === 'kpi' && getCustomKpi(w.key); as m) {
+      <o-stat-card
+        [label]="m.label"
+        [value]="m.value"
+        [sub]="m.sub"
+        [trend]="m.trend"
+        [trendUp]="m.trendUp"
+        [iconPath]="m.iconPath"
+        [color]="m.color"
+        variant="default">
+      </o-stat-card>
+      }
+    }
+  </div>
+  }
+
+  <div style="display: flex; flex-wrap: wrap; gap: 24px; width: 100%;">
+
+      @for (w of customWidgets(); track w.key) {
+
+      @if (w.type === 'pipeline') {
+      <div class="dash-card" style="flex: 1 1 calc(50% - 12px); min-width: 300px; margin: 0;">
+        <div class="card-header"><h3 class="card-title">Deal Pipeline</h3></div>
+        <div class="pipeline-stages">
+          @for (stage of pipeline(); track stage.label) {
+          <div class="pipeline-row">
+            <span class="pipeline-label">{{ stage.label }}</span>
+            <div class="pipeline-bar-wrap">
+              <div class="pipeline-bar" [style.width.%]="stage.pct" [style.background]="stage.color"></div>
+            </div>
+            <span class="pipeline-amount">{{ stage.amount }}</span>
+            <span class="pipeline-count">{{ stage.count }}</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      @if (w.type === 'activity') {
+      <div class="dash-card" style="flex: 1 1 calc(50% - 12px); min-width: 300px; margin: 0;">
+        <div class="card-header"><h3 class="card-title">Recent Activities</h3></div>
+        <div class="activity-list">
+          @for (a of activities(); track a.subject) {
+          <div class="activity-item">
+            <div class="activity-icon" [style.background]="a.color + '18'" [style.color]="a.color">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path [attr.d]="a.icon" />
+              </svg>
+            </div>
+            <div class="activity-body">
+              <p class="activity-subject">{{ a.subject }}</p>
+              <p class="activity-meta">{{ a.contact }} · {{ a.time }}</p>
+            </div>
+            <span class="activity-type-badge" [style.color]="a.color" [style.background]="a.color + '18'">
+              {{ a.type }}
+            </span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      @if (w.type === 'quick_actions') {
+      <div class="dash-card" style="flex: 1 1 calc(50% - 12px); min-width: 300px; margin: 0;">
+        <div class="card-header"><h3 class="card-title">Quick Actions</h3></div>
+        <div class="quick-grid">
+          @for (qa of quickActions; track qa.label) {
+          <a class="quick-action" [routerLink]="[qa.route]">
+            <div class="quick-action__icon" [style.background]="qa.color + '18'" [style.color]="qa.color">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path [attr.d]="qa.icon" />
+              </svg>
+            </div>
+            <span class="quick-action__label">{{ qa.label }}</span>
+          </a>
+          }
+        </div>
+      </div>
+      }
+
+      @if (w.type === 'email_stats') {
+      <div class="dash-card" style="flex: 1 1 calc(50% - 12px); min-width: 300px; margin: 0;">
+        <div class="card-header"><h3 class="card-title">Email Performance</h3></div>
+        <div class="email-stats">
+          @for (stat of emailStats(); track stat.label) {
+          <div class="email-stat">
+            <div class="email-stat__ring" [style.--pct]="stat.pct" [style.--color]="stat.color">
+              <span class="email-stat__pct">{{ stat.pct }}%</span>
+            </div>
+            <span class="email-stat__label">{{ stat.label }}</span>
+            <span class="email-stat__val">{{ stat.value }}</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      }
+
+  </div>
+
+  }
+
+  } @else {
 
   @if (!loading()) {
 
@@ -231,5 +378,7 @@
     </div>
 
   </div>
+
+  }
 
 </div>

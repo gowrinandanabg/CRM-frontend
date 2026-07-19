@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+:host { display: block; font-family: 'Inter', sans-serif; }
+
+.db-container { padding: 28px; max-width: 1600px; margin: 0 auto; position: relative; }
+
+.db-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
+.db-title { font-size: 1.75rem; font-weight: 700; color: var(--crm-text-1, #0F172A); margin: 0 0 4px; }
+.db-subtitle { font-size: 0.875rem; color: var(--crm-text-2, #64748B); margin: 0; }
+.db-header-actions { display: flex; align-items: center; gap: 10px; }
+
+.dash-select { background: var(--crm-bg, #F8FAFC); border: 1px solid var(--crm-border, #E2E8F0); border-radius: 9px; padding: 9px 14px; font-size: 0.875rem; color: var(--crm-text-1, #0F172A); cursor: pointer; }
+
+.btn-primary { display: flex; align-items: center; gap: 6px; background: var(--crm-primary, #0F3460); color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(15,52,96,0.25); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15,52,96,0.35); }
+.btn-secondary { display: flex; align-items: center; gap: 6px; background: var(--crm-card, #fff); border: 1px solid var(--crm-border, #E2E8F0); color: var(--crm-text-1, #0F172A); padding: 9px 16px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-secondary:hover { border-color: var(--crm-primary, #0F3460); color: var(--crm-primary, #0F3460); }
+.btn-ghost { background: transparent; border: 1px solid var(--crm-border, #E2E8F0); color: var(--crm-text-2, #64748B); padding: 8px 14px; border-radius: 8px; font-size: 0.83rem; cursor: pointer; transition: all 0.2s; }
+.btn-danger { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex-shrink: 0; background: var(--crm-card, #fff); border: 1px solid var(--crm-border, #E2E8F0); color: #EF4444; border-radius: 10px; cursor: pointer; transition: all 0.2s; box-sizing: border-box; }
+.btn-danger:hover { background: #EF4444; border-color: #EF4444; color: #fff; }
+
+.db-empty {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--crm-text-2, #64748B);
+  text-align: center;
+  padding: 80px;
+}
+.db-empty h3 { font-size: 1.1rem; font-weight: 700; color: var(--crm-text-1, #0F172A); margin: 0; }
+.db-empty p { font-size: 0.875rem; margin: 0 0 16px; }
+
+.widget-remove {
+  background: rgba(239,68,68,0.08); border: none; color: #EF4444; font-size: 0.75rem; cursor: pointer;
+  width: 22px; height: 22px; border-radius: 50%; transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+}
+.widget-remove:hover { background: #EF4444; color: #fff; }
+.widget-remove--floating { position: absolute; top: 10px; right: 10px; z-index: 2; }
+
+.widget-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.widget-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--crm-text-2, #64748B); }
+
+/* Same auto-fill KPI grid used by the default Dashboard's .metrics-grid — reused verbatim. */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+
+/* Below: the exact same card CSS used by the default Dashboard page
+   (dash-card, pipeline-*, activity-*, quick-*, email-stat*) — reused verbatim
+   since Angular scopes component styles per-file, not reinvented. */
+.dash-card {
+  background: var(--crm-card, #fff);
+  border: 1px solid var(--crm-border, #E2E8F0);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.pipeline-stages { display: flex; flex-direction: column; gap: 14px; }
+.pipeline-row { display: grid; grid-template-columns: 110px 1fr 70px 28px; align-items: center; gap: 12px; }
+.pipeline-label { font-size: 0.78rem; color: var(--crm-text-2, #64748B); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pipeline-bar-wrap { height: 8px; background: var(--crm-border, #E2E8F0); border-radius: 99px; overflow: hidden; }
+.pipeline-bar { height: 100%; border-radius: 99px; transition: width .4s ease; }
+.pipeline-amount { font-size: 0.75rem; font-weight: 600; color: var(--crm-text-2, #64748B); text-align: right; }
+.pipeline-count { font-size: 0.72rem; color: var(--crm-text-3, #94A3B8); text-align: center; background: var(--crm-hover, #F1F5F9); border-radius: 99px; padding: 2px 6px; }
+
+.activity-list { display: flex; flex-direction: column; gap: 12px; }
+.activity-item { display: flex; align-items: flex-start; gap: 12px; }
+.activity-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.activity-body { flex: 1; min-width: 0; }
+.activity-subject { font-size: 0.8rem; font-weight: 600; color: var(--crm-text-1, #0F172A); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
+.activity-meta { font-size: 0.72rem; color: var(--crm-text-3, #94A3B8); margin: 2px 0 0; }
+.activity-type-badge { font-size: 0.68rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; align-self: center; }
+
+.quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.quick-action { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 10px; border: 1px solid var(--crm-border, #E2E8F0); border-radius: 12px; text-decoration: none; transition: all .15s; }
+.quick-action:hover { border-color: var(--crm-primary, #0F3460); background: rgba(15,52,96,0.06); text-decoration: none; transform: translateY(-2px); }
+.quick-action__icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.quick-action__label { font-size: 0.75rem; font-weight: 600; color: var(--crm-text-2, #64748B); text-align: center; }
+
+.email-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.email-stat { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px; border: 1px solid var(--crm-border, #E2E8F0); border-radius: 12px; }
+.email-stat__ring { position: relative; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--color) calc(var(--pct) * 1%), #E5E7EB 0); }
+.email-stat__ring::before { content: ''; position: absolute; inset: 10px; background: var(--crm-card, #fff); border-radius: 50%; }
+.email-stat__pct { position: relative; z-index: 1; font-size: 0.78rem; font-weight: 700; color: var(--crm-text-1, #0F172A); }
+.email-stat__label { font-size: 0.75rem; color: var(--crm-text-3, #94A3B8); font-weight: 500; }
+.email-stat__val { font-size: 0.85rem; font-weight: 700; color: var(--crm-text-1, #0F172A); }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+.modal-card { background: var(--crm-card, #fff); border-radius: 16px; width: 480px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: modalIn 0.25s ease; }
+.modal-wide { width: 640px; }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--crm-border, #E2E8F0); }
+.modal-header h3 { font-size: 1rem; font-weight: 700; color: var(--crm-text-1, #0F172A); margin: 0; }
+.modal-close { background: none; border: none; color: var(--crm-text-2, #64748B); font-size: 1.1rem; cursor: pointer; }
+.modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 70vh; overflow-y: auto; }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--crm-border, #E2E8F0); }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 0.8rem; font-weight: 600; color: var(--crm-text-2, #64748B); }
+.form-input { background: var(--crm-bg, #F8FAFC); border: 1px solid var(--crm-border, #E2E8F0); border-radius: 8px; padding: 10px 12px; font-size: 0.875rem; color: var(--crm-text-1, #0F172A); outline: none; transition: border-color 0.2s; width: 100%; box-sizing: border-box; }
+.form-input:focus { border-color: var(--crm-primary, #0F3460); box-shadow: 0 0 0 3px rgba(15,52,96,0.1); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Select Cards popup — square cards; selecting one adds a navy-blue border (same
+   #0F3460 navy used in the side-nav), deselecting removes it. Same card set/titles/
+   icons as the Dashboard. */
+.card-select-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 2px; }
+.card-select-chip {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px;
+  border: 2px solid var(--crm-border, #E2E8F0);
+  border-radius: 12px;
+  background: var(--crm-bg, #F8FAFC);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+.card-select-chip:hover { border-color: #0F3460; }
+.card-select-chip.selected {
+  border-color: #0F3460;
+  border-width: 2px;
+  background: rgba(15, 52, 96, 0.06);
+}
+.card-select-icon {
+  width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--chip-color, #0F3460) 15%, transparent);
+  color: var(--chip-color, #0F3460);
+  transition: all 0.15s;
+}
+.card-select-icon svg { width: 18px; height: 18px; }
+.card-select-icon--dot::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.card-select-title { font-size: 0.78rem; font-weight: 600; line-height: 1.25; color: var(--crm-text-1, #0F172A); }
+.card-select-check {
+  position: absolute; top: 6px; right: 6px;
+  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #0F3460; color: #fff; font-size: 0.62rem; font-weight: 700;
+}

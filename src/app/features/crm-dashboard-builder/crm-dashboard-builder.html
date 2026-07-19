@@ -1,0 +1,215 @@
+<div class="db-container">
+
+  <!-- Header -->
+  <div class="db-header">
+    <div>
+      <h1 class="db-title">Dashboard Builder</h1>
+      <p class="db-subtitle">Build custom dashboards from the same cards used on your Dashboard</p>
+    </div>
+    <div class="db-header-actions">
+      @if (dashboards().length > 0) {
+      <select class="dash-select" title="Saved dashboard views"
+              [ngModel]="selectedDashboard()?.id"
+              (ngModelChange)="onDashboardPicked($event)">
+        @for (d of dashboards(); track d.id) {
+        <option [value]="d.id">{{ d.name }} — {{ shareTypeLabel(d.shareType) }}</option>
+        }
+      </select>
+      }
+      <button class="btn-secondary" (click)="newDashboard()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Dashboard
+      </button>
+      <button class="btn-secondary" (click)="showSelectCards.set(true)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Select Cards
+      </button>
+      <button class="btn-primary" (click)="saveDashboard()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Dashboard
+      </button>
+      @if (selectedDashboard()?.id) {
+      <button class="btn-danger" title="Delete this dashboard" (click)="deleteDashboard()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- Selected cards — every one below reuses the exact same card/component the default
+       Dashboard page uses (o-stat-card, pipeline-stages, activity-list, quick-grid,
+       email-stats). No separate widget UI or CSS is invented here. -->
+
+  @if (widgets().length > 0) {
+  <div class="metrics-grid" style="margin-bottom: 16px;">
+    @for (w of widgets(); track w.key) {
+      @if (w.type === 'kpi') {
+      <div style="position: relative;">
+        <button class="widget-remove widget-remove--floating" (click)="removeWidget(w.key)" title="Remove card">✕</button>
+        <o-stat-card
+          [label]="w.title"
+          [value]="w.value ?? 0"
+          [color]="w.color || '#6366F1'"
+          [iconPath]="w.iconPath || ''"
+          trend="This period"
+          [trendUp]="true"
+          variant="default">
+        </o-stat-card>
+      </div>
+      }
+    }
+  </div>
+  }
+
+  <div style="display: flex; flex-wrap: wrap; gap: 16px; width: 100%;">
+    @for (w of widgets(); track w.key) {
+
+      @if (w.type === 'pipeline') {
+      <div class="dash-card" style="flex: 1 1 calc(50% - 8px); min-width: 280px; margin: 0;">
+        <div class="widget-header"><span class="widget-title">{{ w.title }}</span><button class="widget-remove" (click)="removeWidget(w.key)" title="Remove card">✕</button></div>
+        <div class="pipeline-stages">
+          @for (stage of samplePipeline(); track stage.label) {
+          <div class="pipeline-row">
+            <span class="pipeline-label">{{ stage.label }}</span>
+            <div class="pipeline-bar-wrap"><div class="pipeline-bar" [style.width.%]="stage.pct" [style.background]="stage.color"></div></div>
+            <span class="pipeline-amount">{{ stage.amount }}</span>
+            <span class="pipeline-count">{{ stage.count }}</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      @if (w.type === 'activity') {
+      <div class="dash-card" style="flex: 1 1 calc(50% - 8px); min-width: 280px; margin: 0;">
+        <div class="widget-header"><span class="widget-title">{{ w.title }}</span><button class="widget-remove" (click)="removeWidget(w.key)" title="Remove card">✕</button></div>
+        <div class="activity-list">
+          @for (a of sampleActivities(); track a.subject) {
+          <div class="activity-item">
+            <div class="activity-icon" [style.background]="a.color + '18'" [style.color]="a.color">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path [attr.d]="a.icon" /></svg>
+            </div>
+            <div class="activity-body">
+              <p class="activity-subject">{{ a.subject }}</p>
+              <p class="activity-meta">{{ a.contact }} · {{ a.time }}</p>
+            </div>
+            <span class="activity-type-badge" [style.color]="a.color" [style.background]="a.color + '18'">{{ a.type }}</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      @if (w.type === 'quick_actions') {
+      <div class="dash-card" style="flex: 1 1 calc(50% - 8px); min-width: 280px; margin: 0;">
+        <div class="widget-header"><span class="widget-title">{{ w.title }}</span><button class="widget-remove" (click)="removeWidget(w.key)" title="Remove card">✕</button></div>
+        <div class="quick-grid">
+          @for (qa of quickActions; track qa.label) {
+          <a class="quick-action" [routerLink]="[qa.route]">
+            <div class="quick-action__icon" [style.background]="qa.color + '18'" [style.color]="qa.color">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path [attr.d]="qa.icon" /></svg>
+            </div>
+            <span class="quick-action__label">{{ qa.label }}</span>
+          </a>
+          }
+        </div>
+      </div>
+      }
+
+      @if (w.type === 'email_stats') {
+      <div class="dash-card" style="flex: 1 1 calc(50% - 8px); min-width: 280px; margin: 0;">
+        <div class="widget-header"><span class="widget-title">{{ w.title }}</span><button class="widget-remove" (click)="removeWidget(w.key)" title="Remove card">✕</button></div>
+        <div class="email-stats">
+          @for (stat of sampleEmailStats(); track stat.label) {
+          <div class="email-stat">
+            <div class="email-stat__ring" [style.--pct]="stat.pct" [style.--color]="stat.color"><span class="email-stat__pct">{{ stat.pct }}%</span></div>
+            <span class="email-stat__label">{{ stat.label }}</span>
+            <span class="email-stat__val">{{ stat.value }}</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+    }
+  </div>
+
+  @if (widgets().length === 0) {
+  <div class="db-empty">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#C7D2FE" stroke-width="1"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <h3>Your dashboard is empty</h3>
+    <p>Click "Select Cards" to add cards from your Dashboard</p>
+    <button class="btn-primary" (click)="showSelectCards.set(true)">Select Cards</button>
+  </div>
+  }
+
+  <!-- Select Cards Modal — click a card to select it (fills with its own color);
+       click again to deselect (back to muted grey). No checkboxes, no custom widget builder. -->
+  @if (showSelectCards()) {
+  <div class="modal-overlay" (click)="showSelectCards.set(false)">
+    <div class="modal-card modal-wide" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Select Cards</h3>
+        <button class="modal-close" (click)="showSelectCards.set(false)">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="card-select-grid">
+          @for (c of availableCards; track c.key) {
+          <button
+            type="button"
+            class="card-select-chip"
+            [class.selected]="selectedKeys().has(c.key)"
+            [style.--chip-color]="c.color || '#0F3460'"
+            (click)="toggleCard(c, !selectedKeys().has(c.key))">
+            @if (c.iconPath) {
+            <span class="card-select-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path [attr.d]="c.iconPath" /></svg>
+            </span>
+            } @else {
+            <span class="card-select-icon card-select-icon--dot"></span>
+            }
+            <span class="card-select-title">{{ c.title }}</span>
+            @if (selectedKeys().has(c.key)) {
+            <span class="card-select-check">✓</span>
+            }
+          </button>
+          }
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="showSelectCards.set(false)">Done</button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Save Dashboard Modal -->
+  @if (showCreateDash()) {
+  <div class="modal-overlay" (click)="showCreateDash.set(false)">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Save Dashboard</h3>
+        <button class="modal-close" (click)="showCreateDash.set(false)">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Dashboard Name</label>
+          <input type="text" [(ngModel)]="newDash.name" class="form-input" placeholder="e.g. Sales Overview Q3" />
+        </div>
+        <div class="form-group">
+          <label>Visibility</label>
+          <select [(ngModel)]="newDash.shareType" class="form-input">
+            <option value="PRIVATE">Private — only visible to you</option>
+            <option value="TEAM">Team — visible to everyone in your organization</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="showCreateDash.set(false)">Cancel</button>
+        <button class="btn-primary" (click)="createDashboard()">Save Dashboard</button>
+      </div>
+    </div>
+  </div>
+  }
+
+</div>
