@@ -44,7 +44,7 @@
       "fields": [
         { "name": "fullName",  "label": "Full Name",  "type": "input",  "required": true,        "colSpan": "col-1" },
         { "name": "email",     "label": "Email",      "type": "input",  "inputType": "email", "required": true, "colSpan": "col-1" },
-        { "name": "phone",     "label": "Phone",      "type": "input",  "inputType": "tel",   "colSpan": "col-1" },
+        { "name": "phone",     "label": "Phone",      "type": "input",  "inputType": "number",   "colSpan": "col-1" },
         { "name": "company",   "label": "Company",    "type": "input",  "required": true,        "colSpan": "col-1" },
         { "name": "jobTitle",  "label": "Job Title",  "type": "input",  "colSpan": "col-1" },
         { "name": "industry",  "label": "Industry",   "type": "select", "colSpan": "col-1",

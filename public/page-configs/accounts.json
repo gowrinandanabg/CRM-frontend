@@ -53,7 +53,7 @@
             { "label": "Other",       "value": "Other"       }
           ]
         },
-        { "name": "phone",         "label": "Phone",           "type": "input", "inputType": "tel", "colSpan": "col-1" },
+        { "name": "phone",         "label": "Phone",           "type": "input", "inputType": "number", "colSpan": "col-1" },
         { "name": "website",       "label": "Website",         "type": "input", "colSpan": "col-1" },
         { "name": "employees",     "label": "Employees",       "type": "input", "inputType": "number", "colSpan": "col-1" },
         { "name": "annualRevenue", "label": "Annual Revenue",  "type": "input", "colSpan": "col-1" },
