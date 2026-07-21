@@ -32,17 +32,24 @@ export class LoginComponent {
   login(): void {
     this.errorMessage = '';
 
-    if (!this.usernameOrEmail || !this.password) {
-      this.errorMessage = 'Username/email and password are required';
-      return;
-    }
+   const usernameOrEmail = this.usernameOrEmail.trim();
+
+if (!usernameOrEmail || !this.password) {
+  this.errorMessage = 'Username/email and password are required';
+  return;
+}
+
+if (/\s/.test(usernameOrEmail)) {
+ this.errorMessage = 'Username cannot contain spaces.';
+this.toast.addError('Validation Error', this.errorMessage);
+return;
+}
 
     this.loading = true;
-
-    this.authService.login({
-      usernameOrEmail: this.usernameOrEmail,
-      password: this.password
-    }).subscribe({
+this.authService.login({
+  usernameOrEmail: usernameOrEmail,
+  password: this.password
+}).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/dashboard']);
