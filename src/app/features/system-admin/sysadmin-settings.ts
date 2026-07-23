@@ -312,6 +312,16 @@ interface TaxCountry {
                 </select>
               </div>
               }
+
+              @if (selectedCountry()) {
+              <div class="setting-item">
+                <div class="setting-label">
+                  <span>Tax Percentage</span>
+                  <span class="setting-desc">Configured rate(s) for {{ selectedCountry()?.countryName }} — sourced from the tax master, read-only</span>
+                </div>
+                <input class="setting-input" type="text" [value]="taxRateSummary" readonly disabled />
+              </div>
+              }
             </div>
 
             <div class="section-actions">
@@ -777,6 +787,27 @@ export class SysadminSettingsComponent implements OnInit {
   ];
 
   selectedCountry = signal<TaxCountry | null>(null);
+
+  /** Read-only display of the selected country's configured rate(s) — sourced entirely
+   * from tax-countries.json, never hardcoded here. Flat-rate regimes (e.g. VAT) show a
+   * single rate; state-based regimes (e.g. GST) show both the same-state and
+   * different-state components since either can apply depending on the customer. */
+  get taxRateSummary(): string {
+    const country = this.selectedCountry();
+    if (!country) return '';
+
+    const format = (components: { name: string; rate: number }[] | null) =>
+      (components ?? []).map(c => `${c.name} ${c.rate}%`).join(' + ');
+
+    if (country.flatComponents?.length) {
+      return format(country.flatComponents);
+    }
+
+    const sameState = format(country.sameStateComponents);
+    const diffState = format(country.differentStateComponents);
+    if (!sameState && !diffState) return '';
+    return `Same state: ${sameState || '—'}  |  Different state: ${diffState || '—'}`;
+  }
 
   numberingLoading     = signal(true);
   numberingError       = signal<string | null>(null);
