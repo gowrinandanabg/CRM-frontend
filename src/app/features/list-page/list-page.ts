@@ -796,6 +796,17 @@ export class ListPageComponent implements OnInit, OnChanges, OnDestroy {
     const sub = this.store.getList(api).subscribe({
       next: (rows) => {
         this.data = rows ?? [];
+        // selectedRow/previewRecord hold a reference into the *previous* data array;
+        // resync them to the freshly fetched row so any status/field change made via
+        // an action (e.g. "Send" on a quote) is reflected wherever that record is
+        // still being displayed (preview panel, floating action bar), instead of
+        // showing the pre-action snapshot until the row is reselected.
+        if (this.selectedRow) {
+          this.selectedRow = this.data.find(r => r.id === this.selectedRow.id) ?? null;
+        }
+        if (this.previewRecord) {
+          this.previewRecord = this.data.find(r => r.id === this.previewRecord.id) ?? null;
+        }
         this.loading = false;
         this.cdr.markForCheck();
       },
