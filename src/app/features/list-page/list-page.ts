@@ -188,7 +188,7 @@ import { AuthService } from '../../core/services/auth';
               <button class="pdf-bar-action-btn pdf-btn-secondary" (click)="openBulkEditDrawer()" style="background: rgba(15, 52, 96, 0.1); border: 1px solid rgba(15, 52, 96, 0.3); color: var(--crm-primary);">
                 Bulk Edit
               </button>
-              <button class="pdf-bar-action-btn pdf-btn-secondary" (click)="openBulkAssignDrawer()" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: #D97706;" *ngIf="auth.getRole() === 'SYSTEM_ADMIN'">
+              <button class="pdf-bar-action-btn pdf-btn-secondary" (click)="openBulkAssignDrawer()" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: #D97706;" *ngIf="auth.getRole() === 'SYSTEM_ADMIN' && resource !== 'contacts' && resource !== 'accounts' && resource !== 'deals'">
                 Bulk Assign
               </button>
               <button class="pdf-bar-action-btn pdf-btn-secondary" (click)="openBulkStatusDrawer()" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #059669;" *ngIf="resource === 'leads' || resource === 'deals' || resource === 'accounts'">
