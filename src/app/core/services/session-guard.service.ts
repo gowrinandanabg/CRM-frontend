@@ -5,6 +5,7 @@ import { AppConfigService } from './app-config.service';
 import { AuthService } from './auth';
 
 const GRACE_SECONDS = 15;
+const HEARTBEAT_MS = 15_000;
 
 /**
  * Any 401 (admin-terminated session, inactivity-expired session, ...) routes through here
@@ -28,6 +29,16 @@ export class SessionGuardService {
   readonly resuming = this._resuming.asReadonly();
 
   private timerId: ReturnType<typeof setInterval> | null = null;
+
+  constructor() {
+    // A terminated/expired session otherwise only surfaces on the *next* API call —
+    // on an idle screen that could be a long time. Poll a cheap authenticated endpoint
+    // so the popup shows up promptly even with no user activity.
+    setInterval(() => {
+      if (!this.authService.isLoggedIn() || this._visible()) return;
+      this.http.get(`${this.cfg.crmApiUrl}/api/v1/sessions/ping`).subscribe({ error: () => {} });
+    }, HEARTBEAT_MS);
+  }
 
   /** Called by the auth interceptor on a 401. A no-op if the popup is already up,
    *  so a burst of parallel failed requests only opens one prompt. */
